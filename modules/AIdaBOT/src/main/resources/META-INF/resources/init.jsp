@@ -13,4 +13,5 @@
 <%
     // Init load portlet setting
     String script = portletPreferences.getValue(SCRIPT, "");
+    String url = portletPreferences.getValue(URL, "");
 %>
