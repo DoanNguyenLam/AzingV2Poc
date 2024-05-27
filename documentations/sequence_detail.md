@@ -10,10 +10,14 @@ sequenceDiagram
     participant ai as AI
     
     c ->> p: Click sign-in/oauth with Google
-    p ->> m: Redirect to authorize
-    m ->> p: abc
+    p ->> m: request Oauth 2.0
+    m ->> c: redirect authorization to read & write
+    c ->> m: approve authorization
+    m ->> p: response authorization data
+    p ->> m: request get access token
+    m ->> p: response access token
     
-    c ->> p: Sign-in/Oauth with Google
+    c ->> p: store & use access token for mail server
     p ->> s: request get list email
     s ->> m: call api /https://gmail.googleapis.com/gmail/v1/users/{userId}/messages
     Note right of s: maxResults: 100, query is:unread
