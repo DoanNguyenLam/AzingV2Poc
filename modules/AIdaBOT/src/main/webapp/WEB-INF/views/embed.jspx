@@ -11,4 +11,14 @@
     <c:if test="${not empty script}">
         ${script}
     </c:if>
+
+    <c:if test="${not empty url}">
+        <iframe src="${url}" title="Chatbot portlet" width="100%" height="500px" style="border-width: 1px"></iframe>
+    </c:if>
+
+    <style>
+        .portlet-content .portlet-header {
+            margin-bottom: 0 !important;
+        }
+    </style>
 </jsp:root>

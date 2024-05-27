@@ -61,17 +61,22 @@ public class AIdaBOTController {
 		AIdaBOTConfig aidabotConfig = new AIdaBOTConfig();
 		aidabotConfig.updateProp(portletRequest);
 
-		_logger.info(_TAG + "Request [{}]", portletRequest.getPreferences().getValue(SCRIPT, ""));
 
 		String script = "";
+		String url = "";
 
-		if (Validation.validateScript(aidabotConfig.getScript())) {
+		if (Validation.validateStr(aidabotConfig.getScript(), Validation.SCRIPT_PATTERN)) {
 			script = aidabotConfig.getScript();
 		}
 
-		modelMap.put("script", script);
-		_logger.info(_TAG + "Config [{}]", script);
+		if (Validation.validateStr(aidabotConfig.getUrl(), Validation.URL_PATTERN)) {
+			url = aidabotConfig.getUrl();
+		}
 
+		modelMap.put("script", script);
+		modelMap.put("url", url);
+		_logger.info(_TAG + "script: {}", script);
+		_logger.info(_TAG + "url: {}", url);
 		return "embed";
 	}
 

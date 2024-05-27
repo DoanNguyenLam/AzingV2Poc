@@ -13,6 +13,7 @@ import javax.portlet.ActionResponse;
 import javax.portlet.PortletConfig;
 
 import static aidabot.configs.AIdaBOTConfigKeys.SCRIPT;
+import static aidabot.configs.AIdaBOTConfigKeys.URL;
 
 @Component(
         configurationPolicy = ConfigurationPolicy.OPTIONAL,
@@ -28,9 +29,10 @@ public class AIdaBOTPortletActionImpl extends DefaultConfigurationAction {
     @Override
     public void processAction(PortletConfig portletConfig, ActionRequest actionRequest, ActionResponse actionResponse) throws Exception {
         String script = ParamUtil.getString(actionRequest, SCRIPT);
-        log.info("processAction [{}]", script);
+        String url = ParamUtil.getString(actionRequest, URL);
 
         setPreference(actionRequest, SCRIPT, script);
+        setPreference(actionRequest, URL, url);
 
         super.processAction(portletConfig, actionRequest, actionResponse);
     }
