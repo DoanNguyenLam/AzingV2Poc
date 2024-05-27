@@ -11,13 +11,14 @@ sequenceDiagram
     
     c ->> p: Click sign-in/oauth with Google
     p ->> m: request Oauth 2.0
-    m ->> c: redirect authorization to read & write
+    m -->> c: redirect authorization to read & write
     c ->> m: approve authorization
-    m ->> p: response authorization data
+    m -->> p: response authorization data
     p ->> m: request get access token
-    m ->> p: response access token
+    m -->> p: response access token
+    p ->> p: store & use access token for mail server
+    p -->> c: auth success
     
-    c ->> p: store & use access token for mail server
     p ->> s: request get list email
     s ->> m: call api /https://gmail.googleapis.com/gmail/v1/users/{userId}/messages
     Note right of s: maxResults: 100, query is:unread
@@ -46,8 +47,8 @@ sequenceDiagram
     alt Send suggestion email
     c ->> p: Click to button send email suggestion
     p ->> s: request to send message
-    s ->> m: call api /send-message...
-    s ->> m: update message status to read
+    s ->> m: call api POST https://gmail.googleapis.com/gmail/v1/users/{userId}/messages/send
+    s ->> m: call api PUT PUT https://gmail.googleapis.com/gmail/v1/users/{userId}/labels/{id} to update message status to read
     m -->> s: response send status
     s -->> p: send message status
     p -->> c: display message status
