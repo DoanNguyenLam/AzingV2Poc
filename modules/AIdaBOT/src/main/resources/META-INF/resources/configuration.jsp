@@ -27,6 +27,14 @@
                 value="<%= configurationRenderURL %>"
         />
 
+        <%-- URL --%>
+        <label class="aui-field-label" for="<portlet:namespace />script">
+            <spring:message code="url"></spring:message>
+        </label>
+        <aui:fieldset>
+            <aui:input label="" name="url" cssClass="w-100" value="<%=url%>"/>
+        </aui:fieldset>
+
         <%-- Script --%>
         <label class="aui-field-label" for="<portlet:namespace />script">
             <spring:message code="script"></spring:message>
@@ -35,13 +43,6 @@
             <aui:input label="" name="script" cssClass="w-100" value="<%=script%>"/>
         </aui:fieldset>
 
-        <%-- URL --%>
-        <label class="aui-field-label" for="<portlet:namespace />script">
-            <spring:message code="url"></spring:message>
-        </label>
-        <aui:fieldset>
-            <aui:input label="" name="url" cssClass="w-100" value="<%=url%>"/>
-        </aui:fieldset>
 
         <aui:button-row>
             <aui:button type="submit"></aui:button>
