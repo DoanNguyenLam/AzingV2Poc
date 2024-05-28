@@ -24,4 +24,5 @@
 
 ### Claude AI
 
--  
+- API: [POST] https://api.anthropic.com/v1/messages
+- Reference: https://docs.anthropic.com/en/api/messages
