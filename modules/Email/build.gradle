@@ -39,4 +39,14 @@ dependencies {
 	cssBuilder group: "com.liferay", name: "com.liferay.css.builder", version: "3.1.4"
 
 	portalCommonCSS group: "com.liferay", name: "com.liferay.frontend.css.common"
+
+	compileOnly group: "com.liferay.portal", name: "com.liferay.util.taglib", version: "5.0.3"
+	compileOnly group: 'com.liferay', name: 'com.liferay.petra.string', version: '4.0.1'
+	compileOnly group: "com.liferay", name: "com.liferay.petra.lang", version: "4.0.1"
+	compileOnly group: "com.liferay", name: "com.liferay.portal.configuration.metatype.api", version: "3.0.1"
+
+	cssBuilder group: "com.liferay", name: "com.liferay.css.builder", version: "3.1.4"
+
+	compileOnly 'org.projectlombok:lombok:1.18.26'
+	annotationProcessor 'org.projectlombok:lombok:1.18.26'
 }

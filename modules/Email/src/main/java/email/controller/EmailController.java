@@ -1,5 +1,6 @@
 package email.controller;
 
+import email.dto.EmailDTO;
 import email.dto.User;
 
 import com.liferay.portletmvc4spring.bind.annotation.ActionMapping;
@@ -8,7 +9,9 @@ import com.liferay.portletmvc4spring.bind.annotation.RenderMapping;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 
+import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.List;
 import java.util.Locale;
 
 import javax.portlet.ActionResponse;
@@ -33,7 +36,7 @@ import org.springframework.web.bind.support.SessionStatus;
  */
 @Controller
 @RequestMapping("VIEW")
-public class UserController {
+public class EmailController {
 
 	@ModelAttribute("user")
 	public User getUserModelAttribute() {
@@ -41,8 +44,17 @@ public class UserController {
 	}
 
 	@RenderMapping
-	public String prepareView() {
-		return "user";
+	public String prepareView(ModelMap modelMap) {
+		List<EmailDTO> emailDTOList = new ArrayList<>();
+		for (int i = 0; i < 10; i++) {
+			EmailDTO emailDTO = new EmailDTO();
+			emailDTO.setSubject("Lorem ipsum dolor sit, amet consectetur adipisicing elit. Fugit fugiat id porro, laborum dolorem minima eos nulla ratione a obcaecati non, iusto eum enim alias corrupti saepe eaque tenetur sequi.");
+			emailDTO.setData("Sample email data " + i);
+			emailDTO.setDate("2024-05-0" + i);
+			emailDTOList.add(emailDTO);
+		}
+		modelMap.put("listEmails", emailDTOList);
+		return "mails";
 	}
 
 	@RenderMapping(params = "javax.portlet.action=success")
@@ -88,7 +100,7 @@ public class UserController {
 	}
 
 	private static final Logger _logger = LoggerFactory.getLogger(
-		UserController.class);
+		EmailController.class);
 
 	@Autowired
 	private LocalValidatorFactoryBean _localValidatorFactoryBean;
