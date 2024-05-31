@@ -1,7 +1,5 @@
 package email.controller;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import email.dto.ClientOauthDTO;
 import org.springframework.http.*;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -27,7 +25,7 @@ public class GmailController {
 
     @GetMapping("/oauth/url")
     public String gmailOauthUrl(){
-        return OAUTH_URL + "?" + "response_type=code" + "&client_id=" + CLIENT_ID + "&scope=" + SCOPES + "&redirect_uri" + REDIRECT_URI;
+        return OAUTH_URL + "?" + "response_type=code" + "&client_id=" + CLIENT_ID + "&scope=" + SCOPES + "&redirect_uri=" + REDIRECT_URI;
 //        return "https://accounts.google.com/o/oauth2/auth?response_type=code&client_id=221683923236-50rrujitiesa8c0igmcjt01v7fpe3pdu.apps.googleusercontent.com&scope=https://www.googleapis.com/auth/userinfo.profile https://www.googleapis.com/auth/gmail.modify https://www.googleapis.com/auth/gmail.labels&redirect_uri=http://localhost:8080/api/gmail/access-token";
     }
 
@@ -46,21 +44,20 @@ public class GmailController {
 
         HttpEntity<Map<String, Object>> entity = new HttpEntity<>(requestBody, headers);
 
-        ResponseEntity<String> response = restTemplate.exchange(
+        ResponseEntity<Map> response = restTemplate.exchange(
                 TOKEN_URL,
                 HttpMethod.POST,
                 entity,
-                String.class
+                Map.class
         );
 
-        if (response.getBody() == null && response.getStatusCode() != HttpStatus.valueOf(200)){
+        if (response.getBody() == null || response.getStatusCode() != HttpStatus.OK) {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Gmail unauthorized");
         }
 
-        ObjectMapper objectMapper = new ObjectMapper();
+        Map<String, Object> responseBody = response.getBody();
 
-        String accessToken = objectMapper.readValue(response.getBody(), ClientOauthDTO.class).getAccessToken();
-        return accessToken;
+        return (String) responseBody.get("access_token");
     }
 
 
