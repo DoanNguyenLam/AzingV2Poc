@@ -9,6 +9,10 @@
 			<name>contextConfigLocation</name>
 			<value>/WEB-INF/spring-context/portlet/Email.xml</value>
 		</init-param>
+		<init-param>
+			<name>config-template</name>
+			<value>/META-INF/resources/configuration.jsp</value>
+		</init-param>
 		<expiration-cache>0</expiration-cache>
 		<supports>
 			<mime-type>text/html</mime-type>
