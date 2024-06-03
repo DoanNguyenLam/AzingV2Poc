@@ -49,4 +49,7 @@ dependencies {
 
 	compileOnly 'org.projectlombok:lombok:1.18.26'
 	annotationProcessor 'org.projectlombok:lombok:1.18.26'
+
+	compileOnly group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: '2.4.4'
+	compileOnly group: 'com.fasterxml.jackson.core', name: 'jackson-core', version: '2.4.4'
 }

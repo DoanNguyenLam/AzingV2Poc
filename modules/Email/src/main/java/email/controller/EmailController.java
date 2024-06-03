@@ -1,6 +1,8 @@
 package email.controller;
 
+import com.liferay.portal.kernel.json.JSONObject;
 import email.dto.EmailDTO;
+import email.dto.EmailDTOReq;
 import email.dto.User;
 
 import com.liferay.portletmvc4spring.bind.annotation.ActionMapping;
@@ -14,21 +16,24 @@ import java.util.Calendar;
 import java.util.List;
 import java.util.Locale;
 
+import javax.portlet.ActionRequest;
 import javax.portlet.ActionResponse;
 import javax.portlet.MutableRenderParameters;
+import javax.portlet.PortletSession;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.ObjectError;
 import org.springframework.validation.beanvalidation.LocalValidatorFactoryBean;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.bind.support.SessionStatus;
 
 /**
@@ -45,6 +50,7 @@ public class EmailController {
 
 	@RenderMapping
 	public String prepareView(ModelMap modelMap) {
+		_logger.info("prepareView");
 		List<EmailDTO> emailDTOList = new ArrayList<>();
 		for (int i = 0; i < 10; i++) {
 			EmailDTO emailDTO = new EmailDTO();
@@ -55,6 +61,18 @@ public class EmailController {
 		}
 		modelMap.put("listEmails", emailDTOList);
 		return "mails";
+	}
+
+	@ActionMapping(params = "action=fetchData")
+	public void refreshMailSharedBox(@RequestParam("id") String id, ModelMap modelMap, ActionResponse actionResponse,
+									 SessionStatus sessionStatus, PortletSession session) {
+		_logger.info("[ACTION MAIL SHARE] - refresh shared mailbox {}", id);
+		MutableRenderParameters mutableRenderParameters =
+				actionResponse.getRenderParameters();
+
+		session.setAttribute("userPrincipalName", id);
+		mutableRenderParameters.setValue("action", "goToSharedMailBox");
+		sessionStatus.setComplete();
 	}
 
 	@RenderMapping(params = "javax.portlet.action=success")
@@ -69,12 +87,22 @@ public class EmailController {
 		return "greeting";
 	}
 
-	@ActionMapping
-	public void submitApplicant(
-		@ModelAttribute("user") User user, BindingResult bindingResult,
-		ModelMap modelMap, Locale locale, ActionResponse actionResponse,
-		SessionStatus sessionStatus) {
+	@ActionMapping(params = "action=summary")
+	@ResponseBody
+	public String handleSummary(@RequestBody EmailDTOReq emailDTOReq) {
+		_logger.info("handleSummary");
+		// Process the data
+		_logger.info("emailDTOReq {}", emailDTOReq);
+		return "Data received successfully!";
+	}
 
+	@ActionMapping(params = "action=submitData")
+	public void handleData(
+			@ModelAttribute("user") User user, BindingResult bindingResult,
+			ModelMap modelMap, Locale locale, ActionResponse actionResponse,
+			SessionStatus sessionStatus) {
+		// Process the data
+		_logger.info("FK form");
 		_localValidatorFactoryBean.validate(user, bindingResult);
 
 		if (!bindingResult.hasErrors()) {
@@ -84,7 +112,7 @@ public class EmailController {
 			}
 
 			MutableRenderParameters mutableRenderParameters =
-				actionResponse.getRenderParameters();
+					actionResponse.getRenderParameters();
 
 			mutableRenderParameters.setValue("javax.portlet.action", "success");
 
@@ -92,10 +120,10 @@ public class EmailController {
 		}
 		else {
 			bindingResult.addError(
-				new ObjectError(
-					"user",
-					_messageSource.getMessage(
-						"please-correct-the-following-errors", null, locale)));
+					new ObjectError(
+							"user",
+							_messageSource.getMessage(
+									"please-correct-the-following-errors", null, locale)));
 		}
 	}
 

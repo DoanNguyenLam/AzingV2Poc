@@ -40,6 +40,6 @@
 	</filter>
 	<filter-mapping>
 		<filter-name>SpringSecurityPortletFilter</filter-name>
-		<portlet-name>AIdaBOTTTT</portlet-name>
+		<portlet-name>AIdaBOT</portlet-name>
 	</filter-mapping>
 </portlet-app>
