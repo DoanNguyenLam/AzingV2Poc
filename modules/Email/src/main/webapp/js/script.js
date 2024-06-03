@@ -1,8 +1,8 @@
 document.addEventListener("DOMContentLoaded", (event) => {
   const emailCards = document.querySelectorAll(".card.email-card");
 
-  emailCards.forEach(function (card) {
-    card.addEventListener("click", function () {
+  emailCards.forEach(async function (card) {
+    card.addEventListener("click", async function () {
       const subject = card.querySelector(".card-title").innerText;
       const data = card.querySelector(".card-text").innerText;
       const date = card.querySelector(".date p").innerText;
@@ -12,25 +12,53 @@ document.addEventListener("DOMContentLoaded", (event) => {
         data,
         date,
       };
-      handleClick(card, emailData);
+      await handleClick(card, emailData);
     });
   });
+
+  const spinnerElement = () => {
+    const spinner = document.createElement("div");
+    spinner.className = "spinner-wrapper d-flex justify-content-center";
+
+    const spinnerBorder = document.createElement("div");
+    spinnerBorder.className = "spinner-border";
+    spinnerBorder.setAttribute("role", "status");
+    spinner.appendChild(spinnerBorder);
+
+    return spinner;
+  };
+
+  const loading = (isLoading) => {
+    if (isLoading) {
+      const cardBodys = document.querySelectorAll(
+          ".card .card-body .body.mt-3"
+      );
+      cardBodys.forEach((item) => {
+        item.appendChild(spinnerElement());
+      });
+    } else {
+      const spinners = document.querySelectorAll(".spinner-wrapper");
+      spinners.forEach((item) => {
+        item.remove();
+      });
+    }
+  };
 
   const removeElement = () => {
     const noSelecteds = document.querySelectorAll(".no-selected");
 
     const currentSubject = document.querySelector(
-      ".original-email .card .card-body .body .subject"
+        ".original-email .card .card-body .body .subject"
     );
     const currentBody = document.querySelector(
-      ".original-email .card .card-body .body .body"
+        ".original-email .card .card-body .body .body"
     );
 
     const currentSummary = document.querySelector(
-      ".email-summary .card .card-body .body .summary"
+        ".email-summary .card .card-body .body .summary"
     );
     const currentReplySuggestion = document.querySelector(
-      ".reply-suggestion .card .card-body .body .reply-suggestion"
+        ".reply-suggestion .card .card-body .body .reply-suggestion"
     );
 
     if (noSelecteds && noSelecteds.length > 0) {
@@ -42,23 +70,10 @@ document.addEventListener("DOMContentLoaded", (event) => {
     if (currentReplySuggestion) currentReplySuggestion.remove();
   };
 
-  const handleClick = async (card, data) => {
-
-    // Active class
-    emailCards.forEach(function (card) {
-      card.classList.remove("active");
-    });
-    card.classList.add("active");
-
-    // Render data
-    // Remove old data
-    removeElement();
-
-    //  Add new data
+  const updateOrginalEmail = (data) => {
     const originalEmailHTML = document.querySelector(
-      ".original-email .card .card-body .body"
+        ".original-email .card .card-body .body"
     );
-
     const subject = document.createElement("div");
     subject.className = "subject";
     const h5 = document.createElement("h5");
@@ -71,10 +86,11 @@ document.addEventListener("DOMContentLoaded", (event) => {
 
     originalEmailHTML.appendChild(subject);
     originalEmailHTML.appendChild(body);
+  };
 
-    // Call service summary & suggestions
+  const updateSummaryEmail = (data) => {
     const summaryEmailHTML = document.querySelector(
-      ".email-summary .card .card-body .body"
+        ".email-summary .card .card-body .body"
     );
     const summary = document.createElement("p");
     summary.className = "summary";
@@ -84,9 +100,10 @@ document.addEventListener("DOMContentLoaded", (event) => {
         - Impedit eius sequi atque?
     `;
     summaryEmailHTML.appendChild(summary);
-
+  };
+  const updateReplySuggestionEmail = (data) => {
     const suggestionEmailHTML = document.querySelector(
-      ".reply-suggestion .card .card-body .body"
+        ".reply-suggestion .card .card-body .body"
     );
     const replySuggestion = document.createElement("div");
     replySuggestion.className = "reply-suggestion";
@@ -145,5 +162,95 @@ document.addEventListener("DOMContentLoaded", (event) => {
   </div>
     `;
     suggestionEmailHTML.appendChild(replySuggestion);
+  };
+
+  async function requestAsync(url = "", method, data = {}) {
+    console.log("URL", url);
+    console.log("method", method);
+    console.log("data", data)
+
+    // Default options are marked with *
+    const response = await fetch(url, {
+      method: method, // *GET, POST, PUT, DELETE, etc.
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(data), // body data type must match "Content-Type" header
+    });
+    const dataRes = await response.json()
+    console.log("response", dataRes)
+    return dataRes; // parses JSON response into native JavaScript objects
+  }
+
+  const getSummary = async (card) => {
+    // const form = {
+    //   id,
+    // };
+    //
+    // try {
+    //   const res = await requestAsync(actionURL, "POST", form);
+    //   const resData = await res.json();
+    //   return resData;
+    // } catch (error) {
+    //   console.log(error);
+    //   return undefined;
+    // }
+    card.submit()
+  };
+
+  const getReplySuggestion = async (actionURL, id) => {
+    const form = {
+      id,
+    };
+
+    try {
+      const res = await requestAsync(actionURL, "POST", form);
+      const resData = await res.json();
+      return resData;
+    } catch (error) {
+      console.log(error);
+      return undefined;
+    }
+  };
+
+  const testCallAPI = async (form) => {
+    form.submit()
+    console.log("testCallAPI", form)
+  }
+
+  const handleClick = async (card, data) => {
+    loading(true);
+    const actionURL = window.submitDataURL;
+
+    // Active class
+    emailCards.forEach(function (card) {
+      card.classList.remove("active");
+    });
+    card.classList.add("active");
+
+    // ***** Render data *****
+    // Remove old data
+    removeElement();
+
+    //  Update DOM original email
+    updateOrginalEmail(data);
+
+    // Call api to get summary and suggestions
+    try {
+      const responses = await Promise.all([
+        getSummary(card)
+      ]);
+      console.log("response", responses);
+      // Update DOM summary
+      updateSummaryEmail(data);
+
+      // Update DOM reply suggestions
+      updateReplySuggestionEmail(data);
+    } catch (error) {
+      console.log("Promise all", error);
+      loading(false);
+    }
+
+    loading(false);
   };
 });

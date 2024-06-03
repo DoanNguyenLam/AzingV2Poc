@@ -5,7 +5,7 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class SummaryDTO {
+public class EmailDTOReq {
 
-    private String data;
+    private String id;
 }
