@@ -9,7 +9,7 @@ public interface EmailService {
 
     EmailDTO getEmailById(Long id);
 
-    String summaryEmail();
+    String summaryAndSuggestEmail(String mailBody, Boolean isSummary);
 
     String replySuggestionEmail();
 
