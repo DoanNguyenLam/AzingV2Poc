@@ -24,12 +24,12 @@ import javax.portlet.ActionResponse;
 import javax.portlet.MutableRenderParameters;
 import javax.portlet.PortletRequest;
 import javax.portlet.PortletSession;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
 
 /**
  * @author doannguyenlam
@@ -56,82 +56,18 @@ public class EmailController {
 		_logger.info("Google Secret Key: {}", emailConfigs.getGoggleSecretKey());
 		_logger.info("Claude API Key: {}", emailConfigs.getClaudeAPIKey());
 
-		List<EmailDTO> emailDTOList = new ArrayList<>();
-		for (int i = 0; i < 10; i++) {
-			EmailDTO emailDTO = new EmailDTO();
-			emailDTO.setSubject("Lorem ipsum dolor sit, amet consectetur adipisicing elit. Fugit fugiat id porro, laborum dolorem minima eos nulla ratione a obcaecati non, iusto eum enim alias corrupti saepe eaque tenetur sequi.");
-			emailDTO.setData("Sample email data " + i);
-			emailDTO.setDate("2024-05-0" + i);
-			emailDTOList.add(emailDTO);
-		}
-		modelMap.put("listEmails", emailDTOList);
-
-		// TODO: implement get mail body by thread
-		String mailBody = "Hey cabien1307!\n" +
-				"\n" +
-				"You’ve just enabled two-factor authentication.\n" +
-				"\n" +
-				"Please take a moment to check that you have saved your recovery codes in a safe place. You can\n" +
-				"download your recovery codes at:\n" +
-				"\n" +
-				"https://github.com/settings/auth/recovery-codes\n" +
-				"\n" +
-				"Recovery codes are the only way to access your account again. By saving your\n" +
-				"recovery codes, you’ll be able to regain access if you:\n" +
-				"\n" +
-				"* Lose your phone\n" +
-				"* Delete your authenticator app\n" +
-				"* Change your phone number\n" +
-				"\n" +
-				"GitHub Support will not be able to restore access to your account.\n" +
-				"\n" +
-				"To disable two-factor authentication, visit\n" +
-				"https://github.com/settings/security\n" +
-				"\n" +
-				"More information about two-factor authentication can be found on GitHub Help at\n" +
-				"https://docs.github.com/articles/about-two-factor-authentication\n" +
-				"\n" +
-				"If you have any questions, please visit https://support.github.com.\n" +
-				"\n" +
-				"Thanks,\n" +
-				"Your friends at GitHub";
-
-
-		// summary email
-		CompletableFuture<ClaudeMailResDTO> summaryFuture = CompletableFuture.supplyAsync(() -> {
-            try {
-                return emailService.summaryAndSuggestEmail(mailBody,true, emailConfigs.getClaudeAPIKey());
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
-        });
-		CompletableFuture<ClaudeMailResDTO> suggestionFuture = CompletableFuture.supplyAsync(() -> {
-            try {
-                return emailService.summaryAndSuggestEmail(mailBody,false, emailConfigs.getClaudeAPIKey());
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
-        });
-
-		CompletableFuture.allOf(summaryFuture, suggestionFuture).join();
-
-		ClaudeMailResDTO summaryResponse = summaryFuture.get();
-		ClaudeMailResDTO suggestionResponse = suggestionFuture.get();
-		_logger.info("summaryResponse {}", summaryResponse.getContent());
-		_logger.info("suggestionResponse {}", suggestionResponse.getContent());
-
-		return "mails";
+		String view = emailService.renderService(modelMap, portletRequest, emailConfigs, null);
+		return view;
 	}
 
 	@ActionMapping(params = "action=fetchData")
-	public void refreshMailSharedBox(@RequestParam("id") String id, ModelMap modelMap, ActionResponse actionResponse,
+	public void fetchData(@RequestParam("id") String id, ModelMap modelMap, ActionResponse actionResponse,
 									 SessionStatus sessionStatus, PortletSession session) {
-		_logger.info("[ACTION MAIL SHARE] - refresh shared mailbox {}", id);
+		_logger.info("Fetch data: {}", id);
 		MutableRenderParameters mutableRenderParameters =
 				actionResponse.getRenderParameters();
 
-		session.setAttribute("userPrincipalName", id);
-		mutableRenderParameters.setValue("action", "success");
+		mutableRenderParameters.setValue("javax.portlet.action", "success");
 		sessionStatus.setComplete();
 	}
 
@@ -148,20 +84,8 @@ public class EmailController {
 		emailConfigs.updateProps(portletRequest);
 
 		// summary email
-		CompletableFuture<ClaudeMailResDTO> summaryFuture = CompletableFuture.supplyAsync(() -> {
-            try {
-                return emailService.summaryAndSuggestEmail(mailBody,true, emailConfigs.getClaudeAPIKey());
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
-        });
-		CompletableFuture<ClaudeMailResDTO> suggestionFuture = CompletableFuture.supplyAsync(() -> {
-            try {
-                return emailService.summaryAndSuggestEmail(mailBody,false, emailConfigs.getClaudeAPIKey());
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
-        });
+		CompletableFuture<ClaudeMailResDTO> summaryFuture = CompletableFuture.supplyAsync(() -> emailService.summaryAndSuggestEmail(mailBody,true, emailConfigs.getClaudeAPIKey()));
+		CompletableFuture<ClaudeMailResDTO> suggestionFuture = CompletableFuture.supplyAsync(() -> emailService.summaryAndSuggestEmail(mailBody,false, emailConfigs.getClaudeAPIKey()));
 
 		CompletableFuture.allOf(summaryFuture, suggestionFuture).join();
 
@@ -172,19 +96,16 @@ public class EmailController {
 	}
 
 	@RenderMapping(params = "javax.portlet.action=success")
-	public String showGreeting(ModelMap modelMap) {
+	public String updateView(ModelMap modelMap, PortletRequest portletRequest) throws ExecutionException, InterruptedException {
 
-		_logger.info("RenderMapping success");
-		List<EmailDTO> emailDTOList = new ArrayList<>();
-		for (int i = 0; i < 10; i++) {
-			EmailDTO emailDTO = new EmailDTO();
-			emailDTO.setSubject("Lorem ipsum dolor sit, amet consectetur adipisicing elit. Fugit fugiat id porro, laborum dolorem minima eos nulla ratione a obcaecati non, iusto eum enim alias corrupti saepe eaque tenetur sequi.");
-			emailDTO.setData("Sample email data " + i);
-			emailDTO.setDate("2024-05-0" + i);
-			emailDTOList.add(emailDTO);
-		}
-		modelMap.put("listEmails", emailDTOList);
-		return "mails";
+		_logger.info("Update view called");
+		EmailDTO emailDTO = new EmailDTO();
+		EmailConfigs emailConfigs = new EmailConfigs();
+		emailConfigs.updateProps(portletRequest);
+
+		String view = emailService.renderService(modelMap, portletRequest, emailConfigs, emailDTO);
+
+		return view;
 	}
 
 	@ActionMapping(params = "action=summary")

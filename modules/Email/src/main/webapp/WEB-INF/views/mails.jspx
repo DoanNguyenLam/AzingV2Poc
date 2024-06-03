@@ -5,21 +5,6 @@
     <jsp:directive.page contentType="text/html;charset=UTF-8" />
     <jsp:output omit-xml-declaration="yes" />
 
-    <portlet:actionURL var="submitDataURL">
-        <portlet:param name="action" value="fetchData" />
-    </portlet:actionURL>
-
-    <script>
-        // Pass the submitDataURL to a global variable
-        window.submitDataURL = "${submitDataURL}";
-    </script>
-
-<!--    <form:form id="${namespace}shared-mail" action="${fetchData}" class="reload-shared-form" method="post">-->
-<!--        <button class="btn" type="submit">-->
-<!--            click-->
-<!--        </button>-->
-<!--    </form:form>-->
-
     <div class="container">
         <div class="row gx-2">
             <div class="col-3">
@@ -27,7 +12,7 @@
                     <c:forEach items="${listEmails}" var="item">
                         <portlet:actionURL var="fetchData">
                             <portlet:param name="action" value="fetchData"/>
-                            <portlet:param name="id" value="1"/>
+                            <portlet:param name="id" value="${item.id}"/>
                         </portlet:actionURL>
                         <form:form action="${fetchData}" method="post" class="card email-card w-100 mb-3">
                             <div class="card-body">
