@@ -7,14 +7,17 @@ public class Utils {
 
     private static final RestTemplate restTemplate = new RestTemplate();
 
-    public static <T> T callApi(String url, String body, Class<T> returnType) {
+    public static <T> T callApi(String url, HttpMethod httpMethod,HttpEntity<String> entity, Class<T> returnType) {
         HttpHeaders headers = new HttpHeaders();
         headers.set("Content-Type", "application/json");
 
-        HttpEntity<String> entity = new HttpEntity<>(body, headers);
+        try {
+            ResponseEntity<T> response = restTemplate.exchange(url, httpMethod, entity, returnType);
+            return response.getBody();
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
 
-        ResponseEntity<T> response = restTemplate.exchange(url, HttpMethod.POST, entity, returnType);
-
-        return response.getBody();
     }
 }
