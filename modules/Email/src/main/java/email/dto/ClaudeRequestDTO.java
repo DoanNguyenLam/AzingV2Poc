@@ -14,12 +14,13 @@ public class ClaudeRequestDTO {
     private String model = "claude-3-opus-20240229";
 
     @JsonProperty("max_tokens")
-    private int maxTokens = 1024;
+    private int maxTokens = 4096;
 
     @JsonProperty("messages")
     private List<Message> messages;
 
-    public ClaudeRequestDTO(List<Message> user) {
+    public ClaudeRequestDTO(List<Message> messages) {
+     this.messages = messages;
     }
 
     @Data

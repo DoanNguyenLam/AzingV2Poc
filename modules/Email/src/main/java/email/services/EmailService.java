@@ -3,6 +3,7 @@ package email.services;
 import email.dto.ClaudeMailResDTO;
 import email.dto.EmailDTO;
 
+import java.io.IOException;
 import java.util.List;
 
 public interface EmailService {
@@ -10,7 +11,7 @@ public interface EmailService {
 
     EmailDTO getEmailById(Long id);
 
-    ClaudeMailResDTO summaryAndSuggestEmail(String mailBody, Boolean isSummary, String claudeApiKey);
+    ClaudeMailResDTO summaryAndSuggestEmail(String mailBody, Boolean isSummary, String claudeApiKey) throws IOException;
 
     String replySuggestionEmail();
 
