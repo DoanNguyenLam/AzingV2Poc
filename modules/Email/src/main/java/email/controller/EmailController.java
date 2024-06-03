@@ -1,30 +1,17 @@
 package email.controller;
 
-import com.liferay.portal.kernel.json.JSONObject;
+import com.liferay.portletmvc4spring.bind.annotation.ActionMapping;
+import com.liferay.portletmvc4spring.bind.annotation.RenderMapping;
+import email.dto.ClaudeMailResDTO;
 import email.dto.EmailDTO;
 import email.dto.EmailDTOReq;
 import email.dto.User;
-
-import com.liferay.portletmvc4spring.bind.annotation.ActionMapping;
-import com.liferay.portletmvc4spring.bind.annotation.RenderMapping;
-
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.List;
-import java.util.Locale;
-
-import javax.portlet.*;
-
+import email.services.EmailServiceImpl;
 import email.utils.EmailConfigs;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.validation.BindingResult;
@@ -35,12 +22,13 @@ import org.springframework.web.bind.support.SessionStatus;
 
 import javax.portlet.ActionResponse;
 import javax.portlet.MutableRenderParameters;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
+import javax.portlet.PortletRequest;
+import javax.portlet.PortletSession;
 import java.util.ArrayList;
-import java.util.Calendar;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
+import java.util.concurrent.CompletableFuture;
 
 /**
  * @author doannguyenlam
@@ -48,6 +36,9 @@ import java.util.Locale;
 @Controller
 @RequestMapping("VIEW")
 public class EmailController {
+
+	@Autowired
+	private EmailServiceImpl emailService;
 
 	@ModelAttribute("user")
 	public User getUserModelAttribute() {
@@ -86,6 +77,30 @@ public class EmailController {
 		session.setAttribute("userPrincipalName", id);
 		mutableRenderParameters.setValue("action", "success");
 		sessionStatus.setComplete();
+	}
+
+	@ActionMapping(params = "action=summaryMail")
+	public List<ClaudeMailResDTO> summaryMail(@RequestParam("thread-id") String threadId, ModelMap modelMap, ActionResponse actionResponse,
+											  SessionStatus sessionStatus, PortletSession session, PortletRequest portletRequest) throws Exception{
+		_logger.info("[SUMMARY EMAIL] - threadId: {}", threadId);
+
+		// TODO: implement get mail body by thread
+		String mailBody = "sample";
+
+		// TODO: config claude api key
+		EmailConfigs emailConfigs = new EmailConfigs();
+		emailConfigs.updateProps(portletRequest);
+
+		// summary email
+		CompletableFuture<ClaudeMailResDTO> summaryFuture = CompletableFuture.supplyAsync(() -> emailService.summaryAndSuggestEmail(mailBody,true, emailConfigs.getClaudeAPIKey()));
+		CompletableFuture<ClaudeMailResDTO> suggestionFuture = CompletableFuture.supplyAsync(() -> emailService.summaryAndSuggestEmail(mailBody,false, emailConfigs.getClaudeAPIKey()));
+
+		CompletableFuture.allOf(summaryFuture, suggestionFuture).join();
+
+		ClaudeMailResDTO summaryResponse = summaryFuture.get();
+		ClaudeMailResDTO suggestionResponse = suggestionFuture.get();
+
+		return Arrays.asList(summaryResponse, suggestionResponse);
 	}
 
 	@RenderMapping(params = "javax.portlet.action=success")
@@ -152,5 +167,6 @@ public class EmailController {
 
 	@Autowired
 	private MessageSource _messageSource;
+
 
 }
