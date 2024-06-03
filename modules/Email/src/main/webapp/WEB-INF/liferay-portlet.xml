@@ -5,6 +5,7 @@
 	<portlet>
 		<portlet-name>Email</portlet-name>
 		<icon>/icon.png</icon>
+		<configuration-action-class>email.configs.EmailPortletActionImpl</configuration-action-class>
 		<requires-namespaced-parameters>false</requires-namespaced-parameters>
 		<header-portlet-css>/css/main.css</header-portlet-css>
 	</portlet>

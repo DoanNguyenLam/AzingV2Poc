@@ -16,11 +16,9 @@ import java.util.Calendar;
 import java.util.List;
 import java.util.Locale;
 
-import javax.portlet.ActionRequest;
-import javax.portlet.ActionResponse;
-import javax.portlet.MutableRenderParameters;
-import javax.portlet.PortletSession;
+import javax.portlet.*;
 
+import email.utils.EmailConfigs;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -49,8 +47,15 @@ public class EmailController {
 	}
 
 	@RenderMapping
-	public String prepareView(ModelMap modelMap) {
+	public String prepareView(ModelMap modelMap, PortletRequest portletRequest) {
 		_logger.info("prepareView");
+
+		EmailConfigs emailConfigs = new EmailConfigs();
+		emailConfigs.updateProps(portletRequest);
+		_logger.info("Google Client Key: {}", emailConfigs.getGoogleClientKey());
+		_logger.info("Google Secret Key: {}", emailConfigs.getGoggleSecretKey());
+		_logger.info("Claude API Key: {}", emailConfigs.getClaudeAPIKey());
+
 		List<EmailDTO> emailDTOList = new ArrayList<>();
 		for (int i = 0; i < 10; i++) {
 			EmailDTO emailDTO = new EmailDTO();
@@ -71,20 +76,24 @@ public class EmailController {
 				actionResponse.getRenderParameters();
 
 		session.setAttribute("userPrincipalName", id);
-		mutableRenderParameters.setValue("action", "goToSharedMailBox");
+		mutableRenderParameters.setValue("action", "success");
 		sessionStatus.setComplete();
 	}
 
 	@RenderMapping(params = "javax.portlet.action=success")
 	public String showGreeting(ModelMap modelMap) {
 
-		DateFormat dateFormat = new SimpleDateFormat("EEEE, MMMM d, yyyy G");
-
-		Calendar todayCalendar = Calendar.getInstance();
-
-		modelMap.put("todaysDate", dateFormat.format(todayCalendar.getTime()));
-
-		return "greeting";
+		_logger.info("RenderMapping success");
+		List<EmailDTO> emailDTOList = new ArrayList<>();
+		for (int i = 0; i < 10; i++) {
+			EmailDTO emailDTO = new EmailDTO();
+			emailDTO.setSubject("Lorem ipsum dolor sit, amet consectetur adipisicing elit. Fugit fugiat id porro, laborum dolorem minima eos nulla ratione a obcaecati non, iusto eum enim alias corrupti saepe eaque tenetur sequi.");
+			emailDTO.setData("Sample email data " + i);
+			emailDTO.setDate("2024-05-0" + i);
+			emailDTOList.add(emailDTO);
+		}
+		modelMap.put("listEmails", emailDTOList);
+		return "mails";
 	}
 
 	@ActionMapping(params = "action=summary")
