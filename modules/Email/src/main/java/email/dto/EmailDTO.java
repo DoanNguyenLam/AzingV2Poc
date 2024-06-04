@@ -13,8 +13,8 @@ public class EmailDTO {
 
     private String date;
 
-    private Integer threadId;
-    private Integer id;
+    private String threadId;
+    private String id;
     private String snippet;
     private String internalDate;
     private String bodyText;

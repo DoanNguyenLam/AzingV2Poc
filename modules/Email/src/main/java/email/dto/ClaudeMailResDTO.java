@@ -8,6 +8,6 @@ import lombok.Setter;
 @Setter
 @AllArgsConstructor
 public class ClaudeMailResDTO {
-    private String type;
+    private ClaudeMailType type;
     private String content;
 }

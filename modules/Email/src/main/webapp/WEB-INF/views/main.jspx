@@ -12,7 +12,8 @@
                     <c:forEach items="${listEmails}" var="item">
                         <portlet:actionURL var="fetchData">
                             <portlet:param name="action" value="fetchData"/>
-                            <portlet:param name="id" value="${item.id}"/>
+                            <portlet:param name="threadId" value="${item.threadId}"/>
+                            <portlet:param name="emailId" value="${item.id}"/>
                         </portlet:actionURL>
                         <form:form action="${fetchData}" method="post" class="card email-card w-100 mb-3">
                             <div class="card-body">
@@ -27,7 +28,7 @@
                                     </p>
                                 </div>
                                 <div class="date">
-                                    <p>${item.date}</p>
+                                    <p>${item.date} ${item.threadId} ${item.id}</p>
                                 </div>
                             </div>
                         </form:form>
