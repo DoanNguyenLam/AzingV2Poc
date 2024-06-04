@@ -13,9 +13,15 @@ import java.util.concurrent.ExecutionException;
 public interface EmailService {
     List<EmailDTO> getListOfEmails();
 
-    EmailDTO getEmailById(Long id);
+    EmailDTO getEmailById(String id);
+
+    List<EmailDTO> getListEmailByThreadId(String threadId);
 
     ClaudeMailResDTO summaryAndSuggestEmail(String mailBody, Boolean isSummary, String claudeApiKey) throws IOException;
 
-    String renderService(ModelMap modelMap, PortletRequest portletRequest, EmailConfigs emailConfigs, EmailDTO currentEmail) throws InterruptedException, ExecutionException;
+    List<ClaudeMailResDTO> getSummaryAndSuggestEmail(EmailConfigs emailConfigs, String threadId) throws ExecutionException, InterruptedException;
+
+    String navigateRender(ModelMap modelMap, PortletRequest portletRequest, EmailConfigs emailConfigs, String threadId, String emailId) throws InterruptedException, ExecutionException;
+
+    void updateClaudeModelMap(ModelMap modelMap, List<ClaudeMailResDTO> claudeMailResDTOList);
 }

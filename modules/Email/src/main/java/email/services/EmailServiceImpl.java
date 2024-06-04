@@ -1,10 +1,7 @@
 package email.services;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import email.dto.ClaudeMailResDTO;
-import email.dto.ClaudeRequestDTO;
-import email.dto.ClaudeResponseDTO;
-import email.dto.EmailDTO;
+import email.dto.*;
 import email.utils.EmailConfigs;
 import email.utils.Utils;
 import org.slf4j.Logger;
@@ -35,10 +32,10 @@ public class EmailServiceImpl implements EmailService {
     public List<EmailDTO> getListOfEmails() {
         // TODO: get list mails
         List<EmailDTO> emailDTOList = new ArrayList<>();
-        for (int i = 0; i < 100; i++) {
+        for (int i = 0; i < 10; i++) {
             EmailDTO emailDTO = new EmailDTO();
-            emailDTO.setId(i);
-            emailDTO.setThreadId(i);
+            emailDTO.setId(String.valueOf(i));
+            emailDTO.setThreadId(String.valueOf(i));
             emailDTO.setSnippet("When present, contains the ID of an external attachment that can be retrieved in a separate messages.attachments.get request.");
             emailDTO.setBodyText("Body text");
             emailDTO.setBodyHtml("Body html");
@@ -52,7 +49,27 @@ public class EmailServiceImpl implements EmailService {
     }
 
     @Override
-    public EmailDTO getEmailById(Long id) {
+    public List<EmailDTO> getListEmailByThreadId(String threadId) {
+        // TODO: get list mails by thread
+        List<EmailDTO> emailDTOList = new ArrayList<>();
+        for (int i = 0; i < 9; i++) {
+            EmailDTO emailDTO = new EmailDTO();
+            emailDTO.setId(String.valueOf(i));
+            emailDTO.setThreadId(String.valueOf(i));
+            emailDTO.setSnippet("When present, contains the ID of an external attachment that can be retrieved in a separate messages.attachments.get request.");
+            emailDTO.setBodyText("Body text");
+            emailDTO.setBodyHtml("Body html");
+
+            emailDTO.setSubject("Lorem ipsum dolor sit, amet consectetur adipisicing elit. Fugit fugiat id porro, laborum dolorem minima eos nulla ratione a obcaecati non, iusto eum enim alias corrupti saepe eaque tenetur sequi.");
+            emailDTO.setData("Sample email data " + i);
+            emailDTO.setDate("2024-05-0" + i);
+            emailDTOList.add(emailDTO);
+        }
+        return emailDTOList;
+    }
+
+    @Override
+    public EmailDTO getEmailById(String id) {
         return null;
     }
 
@@ -69,12 +86,12 @@ public class EmailServiceImpl implements EmailService {
         headers.setContentType(MediaType.APPLICATION_JSON);
 
         String content;
-        String mailType = "SUMMARY";
+        ClaudeMailType mailType = ClaudeMailType.SUMMARY;
         if (isSummary){
             content = SUMMARY_PROMPT + mailBody;
         }else{
             content = SUGGEST_PROMPT + mailBody;
-            mailType = "SUGGESTION";
+            mailType = ClaudeMailType.SUGGESTION;
         }
 
         // Create the request body using the model class
@@ -110,57 +127,96 @@ public class EmailServiceImpl implements EmailService {
     }
 
     @Override
-    public String renderService(ModelMap modelMap, PortletRequest portletRequest, EmailConfigs emailConfigs, EmailDTO currentEmail) throws InterruptedException, ExecutionException {
-        // TODO: get list mails
-
-        List<EmailDTO> emailDTOList = getListOfEmails();
-
-        if (currentEmail != null) {
-            String mailBody = "Hey cabien1307!\n" +
-                    "\n" +
-                    "You’ve just enabled two-factor authentication.\n" +
-                    "\n" +
-                    "Please take a moment to check that you have saved your recovery codes in a safe place. You can\n" +
-                    "download your recovery codes at:\n" +
-                    "\n" +
-                    "https://github.com/settings/auth/recovery-codes\n" +
-                    "\n" +
-                    "Recovery codes are the only way to access your account again. By saving your\n" +
-                    "recovery codes, you’ll be able to regain access if you:\n" +
-                    "\n" +
-                    "* Lose your phone\n" +
-                    "* Delete your authenticator app\n" +
-                    "* Change your phone number\n" +
-                    "\n" +
-                    "GitHub Support will not be able to restore access to your account.\n" +
-                    "\n" +
-                    "To disable two-factor authentication, visit\n" +
-                    "https://github.com/settings/security\n" +
-                    "\n" +
-                    "More information about two-factor authentication can be found on GitHub Help at\n" +
-                    "https://docs.github.com/articles/about-two-factor-authentication\n" +
-                    "\n" +
-                    "If you have any questions, please visit https://support.github.com.\n" +
-                    "\n" +
-                    "Thanks,\n" +
-                    "Your friends at GitHub";
-
-            CompletableFuture<ClaudeMailResDTO> summaryFuture = CompletableFuture.supplyAsync(() -> this.summaryAndSuggestEmail(mailBody, true, emailConfigs.getClaudeAPIKey()));
-            CompletableFuture<ClaudeMailResDTO> suggestionFuture = CompletableFuture.supplyAsync(() -> this.summaryAndSuggestEmail(mailBody, false, emailConfigs.getClaudeAPIKey()));
-
-            CompletableFuture.allOf(summaryFuture, suggestionFuture).join();
-
-            ClaudeMailResDTO summaryResponse = summaryFuture.get();
-            ClaudeMailResDTO suggestionResponse = suggestionFuture.get();
-            if (summaryResponse == null || suggestionResponse == null) {
-                _logger.error("One of the responses is null: summaryResponse={}, suggestionResponse={}", summaryResponse, suggestionResponse);
-                return "error";
-            }
-            modelMap.put("summary", summaryResponse.getContent());
-            modelMap.put("suggestion", suggestionResponse.getContent());
+    public List<ClaudeMailResDTO> getSummaryAndSuggestEmail(EmailConfigs emailConfigs, String threadId) throws ExecutionException, InterruptedException {
+        if (threadId == null) {
+            return new ArrayList<>();
         }
 
-        modelMap.put("listEmails", emailDTOList);
-        return "mails";
+        List<ClaudeMailResDTO> claudeMailResDTOList = new ArrayList<>();
+        String mailBody = "Hey cabien1307!\n" +
+                "\n" +
+                "You’ve just enabled two-factor authentication.\n" +
+                "\n" +
+                "Please take a moment to check that you have saved your recovery codes in a safe place. You can\n" +
+                "download your recovery codes at:\n" +
+                "\n" +
+                "https://github.com/settings/auth/recovery-codes\n" +
+                "\n" +
+                "Recovery codes are the only way to access your account again. By saving your\n" +
+                "recovery codes, you’ll be able to regain access if you:\n" +
+                "\n" +
+                "* Lose your phone\n" +
+                "* Delete your authenticator app\n" +
+                "* Change your phone number\n" +
+                "\n" +
+                "GitHub Support will not be able to restore access to your account.\n" +
+                "\n" +
+                "To disable two-factor authentication, visit\n" +
+                "https://github.com/settings/security\n" +
+                "\n" +
+                "More information about two-factor authentication can be found on GitHub Help at\n" +
+                "https://docs.github.com/articles/about-two-factor-authentication\n" +
+                "\n" +
+                "If you have any questions, please visit https://support.github.com.\n" +
+                "\n" +
+                "Thanks,\n" +
+                "Your friends at GitHub";
+        CompletableFuture<ClaudeMailResDTO> summaryFuture = CompletableFuture.supplyAsync(() -> this.summaryAndSuggestEmail(mailBody, true, emailConfigs.getClaudeAPIKey()));
+        CompletableFuture<ClaudeMailResDTO> suggestionFuture = CompletableFuture.supplyAsync(() -> this.summaryAndSuggestEmail(mailBody, false, emailConfigs.getClaudeAPIKey()));
+
+        CompletableFuture.allOf(summaryFuture, suggestionFuture).join();
+
+        ClaudeMailResDTO summaryResponse = summaryFuture.get();
+        ClaudeMailResDTO suggestionResponse = suggestionFuture.get();
+        if (summaryResponse == null || suggestionResponse == null) {
+            _logger.error("One of the responses is null: summaryResponse={}, suggestionResponse={}", summaryResponse, suggestionResponse);
+            return new ArrayList<>();
+        }
+
+        claudeMailResDTOList.add(suggestionResponse);
+        claudeMailResDTOList.add(summaryResponse);
+
+        return claudeMailResDTOList;
+    };
+
+
+
+    @Override
+    public String navigateRender(ModelMap modelMap, PortletRequest portletRequest, EmailConfigs emailConfigs, String threadId, String emailId) throws InterruptedException, ExecutionException {
+
+        List<EmailDTO> emailDTOList;
+        if (threadId != null && emailId != null) {
+            emailDTOList = getListEmailByThreadId(threadId);
+            // Filter email by id
+            EmailDTO emailDTO = new EmailDTO();
+            modelMap.put(ModelMapKey.ORGINAL_EMAIL.getValue(), emailDTO);
+
+        } else {
+            emailDTOList = getListOfEmails();
+        }
+        modelMap.put(ModelMapKey.LIST_EMAIL.getValue(), emailDTOList);
+
+
+        List<ClaudeMailResDTO> claudeMailResDTOList = this.getSummaryAndSuggestEmail(emailConfigs, threadId);
+        this.updateClaudeModelMap(modelMap, claudeMailResDTOList);
+        return "main";
+    }
+
+    @Override
+    public void updateClaudeModelMap(ModelMap modelMap, List<ClaudeMailResDTO> claudeMailResDTOList) {
+        if (!claudeMailResDTOList.isEmpty()) {
+            for (ClaudeMailResDTO claudeMailResDTO: claudeMailResDTOList) {
+                switch (claudeMailResDTO.getType()) {
+                    case SUMMARY:
+                        modelMap.put(ModelMapKey.SUMMARY_EMAIL.getValue(), claudeMailResDTO.getContent());
+                        break;
+                    case SUGGESTION:
+                        modelMap.put(ModelMapKey.SUGGESTION_EMAIL.getValue(), claudeMailResDTO.getContent());
+                        break;
+                    default:
+                        break;
+                }
+            }
+        }
     }
 }
