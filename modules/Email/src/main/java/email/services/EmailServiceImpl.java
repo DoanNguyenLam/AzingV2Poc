@@ -24,8 +24,6 @@ import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 
-import static email.configs.EmailConfigKeys.GMAIL_ACCESS_TOKEN;
-
 @Service
 public class EmailServiceImpl implements EmailService {
 
@@ -40,19 +38,6 @@ public class EmailServiceImpl implements EmailService {
     private final Logger LOGGER = LoggerFactory.getLogger(this.getClass());
     @Override
     public List<EmailDTO> getListOfEmails(String accessToken) {
-//        List<EmailDTO> emailDTOList = new ArrayList<>();
-//        for (int i = 0; i < 100; i++) {
-//            EmailDTO emailDTO = new EmailDTO();
-//            emailDTO.setId(String.valueOf(i));
-//            emailDTO.setThreadId(String.valueOf(i));
-//            emailDTO.setSnippet("When present, contains the ID of an external attachment that can be retrieved in a separate messages.attachments.get request.");
-//            emailDTO.setBodyPlainText("Body text");
-//            emailDTO.setBodyHtml("Body html");
-//
-//            emailDTO.setSubject("Lorem ipsum dolor sit, amet consectetur adipisicing elit. Fugit fugiat id porro, laborum dolorem minima eos nulla ratione a obcaecati non, iusto eum enim alias corrupti saepe eaque tenetur sequi.");
-//            emailDTO.setDate("2024-05-0" + i);
-//            emailDTOList.add(emailDTO);
-//        }
         return gmailService.getListMail(accessToken);
     }
 
@@ -119,7 +104,7 @@ public class EmailServiceImpl implements EmailService {
 
         // TODO: impl get access token
         String accessToken = emailConfigs.getGmailAccessToken();
-        String sampleAccessToken = "";
+        String sampleAccessToken = "ya29.a0AXooCgsd5uUKbdJIjmHmGQi0jm8n6E-45aDIEMvLPnHorfbzLKX-nQfDuKzWGs-qxChg-gQBI--pPcapDmaxhYuLXZmWKOzuKF268OK0DmVqqCrQH7tpc7sJ7YamrIJ0r463R5CzVfoi5QHzlVtRLG47xJFE0up8PGAuaCgYKATcSARESFQHGX2MiQJg59RkAjUhUy3qjYplrEA0171";
         List<EmailDTO> emailDTOList = getListOfEmails(sampleAccessToken);
 
         if (currentEmail != null) {
