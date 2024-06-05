@@ -6,17 +6,13 @@ import lombok.Setter;
 @Getter
 @Setter
 public class EmailDTO {
-
+    private String id;
+    private String threadId;
     private String subject;
-
-    private String data;
-
-    private String date;
-
-    private Integer threadId;
-    private Integer id;
     private String snippet;
-    private String internalDate;
-    private String bodyText;
+    private String sendFrom;
+    private String sendTo;
+    private String date;
+    private String bodyPlainText;
     private String bodyHtml;
 }
