@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.concurrent.ExecutionException;
 
 public interface EmailService {
-    List<EmailDTO> getListOfEmails();
+    List<EmailDTO> getListOfEmails(String accessToken);
 
     EmailDTO getEmailById(Long id);
 

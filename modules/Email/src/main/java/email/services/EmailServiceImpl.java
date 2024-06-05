@@ -9,46 +9,51 @@ import email.utils.EmailConfigs;
 import email.utils.Utils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.http.*;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.ui.ModelMap;
-import org.springframework.web.client.RestTemplate;
 
 import javax.portlet.PortletRequest;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 
+import static email.configs.EmailConfigKeys.GMAIL_ACCESS_TOKEN;
+
 @Service
 public class EmailServiceImpl implements EmailService {
+
+    @Autowired
+    private GmailService gmailService;
+
     private static final String API_URL = "https://api.anthropic.com/v1/messages";
     private static final String API_VERSION = "2023-06-01";
     private static final String SUMMARY_PROMPT = "This is a email body, summarize it for me: ";
     private static final String SUGGEST_PROMPT = "This is a mail body, give me the reply suggestion: ";
 
-    private static final Logger _logger = LoggerFactory.getLogger(
-            EmailServiceImpl.class);
+    private final Logger LOGGER = LoggerFactory.getLogger(this.getClass());
     @Override
-    public List<EmailDTO> getListOfEmails() {
-        // TODO: get list mails
-        List<EmailDTO> emailDTOList = new ArrayList<>();
-        for (int i = 0; i < 100; i++) {
-            EmailDTO emailDTO = new EmailDTO();
-            emailDTO.setId(i);
-            emailDTO.setThreadId(i);
-            emailDTO.setSnippet("When present, contains the ID of an external attachment that can be retrieved in a separate messages.attachments.get request.");
-            emailDTO.setBodyText("Body text");
-            emailDTO.setBodyHtml("Body html");
-
-            emailDTO.setSubject("Lorem ipsum dolor sit, amet consectetur adipisicing elit. Fugit fugiat id porro, laborum dolorem minima eos nulla ratione a obcaecati non, iusto eum enim alias corrupti saepe eaque tenetur sequi.");
-            emailDTO.setData("Sample email data " + i);
-            emailDTO.setDate("2024-05-0" + i);
-            emailDTOList.add(emailDTO);
-        }
-        return emailDTOList;
+    public List<EmailDTO> getListOfEmails(String accessToken) {
+//        List<EmailDTO> emailDTOList = new ArrayList<>();
+//        for (int i = 0; i < 100; i++) {
+//            EmailDTO emailDTO = new EmailDTO();
+//            emailDTO.setId(String.valueOf(i));
+//            emailDTO.setThreadId(String.valueOf(i));
+//            emailDTO.setSnippet("When present, contains the ID of an external attachment that can be retrieved in a separate messages.attachments.get request.");
+//            emailDTO.setBodyPlainText("Body text");
+//            emailDTO.setBodyHtml("Body html");
+//
+//            emailDTO.setSubject("Lorem ipsum dolor sit, amet consectetur adipisicing elit. Fugit fugiat id porro, laborum dolorem minima eos nulla ratione a obcaecati non, iusto eum enim alias corrupti saepe eaque tenetur sequi.");
+//            emailDTO.setDate("2024-05-0" + i);
+//            emailDTOList.add(emailDTO);
+//        }
+        return gmailService.getListMail(accessToken);
     }
 
     @Override
@@ -59,7 +64,7 @@ public class EmailServiceImpl implements EmailService {
     @Override
     public ClaudeMailResDTO summaryAndSuggestEmail(String mailBody, Boolean isSummary, String claudeApiKey) {
 
-        _logger.info("KEY {}", claudeApiKey);
+        LOGGER.info("KEY {}", claudeApiKey);
 
         // Create the headers
         HttpHeaders headers = new HttpHeaders();
@@ -89,7 +94,7 @@ public class EmailServiceImpl implements EmailService {
             requestBody = mapper.writeValueAsString(request);
         } catch (Exception e) {
             e.printStackTrace();
-            _logger.error("Error serializing request body", e);
+            LOGGER.error("Error serializing request body", e);
             return null;
         }
 
@@ -103,7 +108,7 @@ public class EmailServiceImpl implements EmailService {
                 String result = mapper.readValue(response, ClaudeResponseDTO.class).getContent().get(0).getText();
                 return new ClaudeMailResDTO(mailType, result);
             } catch (IOException e) {
-                _logger.error("Error parsing API response", e);
+                LOGGER.error("Error parsing API response", e);
                 throw new RuntimeException(e);
             }
         }
@@ -111,9 +116,11 @@ public class EmailServiceImpl implements EmailService {
 
     @Override
     public String renderService(ModelMap modelMap, PortletRequest portletRequest, EmailConfigs emailConfigs, EmailDTO currentEmail) throws InterruptedException, ExecutionException {
-        // TODO: get list mails
 
-        List<EmailDTO> emailDTOList = getListOfEmails();
+        // TODO: impl get access token
+        String accessToken = emailConfigs.getGmailAccessToken();
+        String sampleAccessToken = "";
+        List<EmailDTO> emailDTOList = getListOfEmails(sampleAccessToken);
 
         if (currentEmail != null) {
             String mailBody = "Hey cabien1307!\n" +
@@ -153,7 +160,7 @@ public class EmailServiceImpl implements EmailService {
             ClaudeMailResDTO summaryResponse = summaryFuture.get();
             ClaudeMailResDTO suggestionResponse = suggestionFuture.get();
             if (summaryResponse == null || suggestionResponse == null) {
-                _logger.error("One of the responses is null: summaryResponse={}, suggestionResponse={}", summaryResponse, suggestionResponse);
+                LOGGER.error("One of the responses is null: summaryResponse={}, suggestionResponse={}", summaryResponse, suggestionResponse);
                 return "error";
             }
             modelMap.put("summary", summaryResponse.getContent());
