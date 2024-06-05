@@ -104,7 +104,7 @@ public class EmailServiceImpl implements EmailService {
 
         // TODO: impl get access token
         String accessToken = emailConfigs.getGmailAccessToken();
-        String sampleAccessToken = "ya29.a0AXooCgsd5uUKbdJIjmHmGQi0jm8n6E-45aDIEMvLPnHorfbzLKX-nQfDuKzWGs-qxChg-gQBI--pPcapDmaxhYuLXZmWKOzuKF268OK0DmVqqCrQH7tpc7sJ7YamrIJ0r463R5CzVfoi5QHzlVtRLG47xJFE0up8PGAuaCgYKATcSARESFQHGX2MiQJg59RkAjUhUy3qjYplrEA0171";
+        String sampleAccessToken = "";
         List<EmailDTO> emailDTOList = getListOfEmails(sampleAccessToken);
 
         if (currentEmail != null) {
