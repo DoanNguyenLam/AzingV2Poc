@@ -15,5 +15,4 @@ public class EmailDTO {
     private String date;
     private String bodyPlainText;
     private String bodyHtml;
-    private String data;
 }
