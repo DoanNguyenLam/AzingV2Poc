@@ -12,7 +12,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
@@ -100,28 +99,23 @@ public class GmailService {
         Optional<String> date = gmailDetail.getPayload().getHeaders().stream().filter(headers -> Objects.equals(headers.getName(), "Date")).map(GmailDetail.Headers::getValue).findFirst();
         date.ifPresent(emailDTO::setDate);
 
-//        Optional<String> bodyPlainText = gmailDetail.getPayload().getParts().stream()
-//                .filter(partItem -> Objects.equals(partItem.getMimeType(), "text/plain"))
-//                .map(GmailDetail.Parts::getBody)
-//                .map(GmailDetail.Body::getData)
-//                .findFirst();
+        Optional<String> bodyPlainText = gmailDetail.getPayload().getParts().stream()
+                .filter(partItem -> Objects.equals(partItem.getMimeType(), "text/plain"))
+                .map(GmailDetail.Parts::getBody)
+                .map(GmailDetail.Body::getData)
+                .map(this::decodeGmailBase64)
+                .findFirst();
 
-//        if (bodyPlainText.isPresent()) {
-//            String decodedBodyPlainText = this.decodeBase64(bodyPlainText.toString());
-//            emailDTO.setBodyPlainText(decodedBodyPlainText);
-//        }
+        bodyPlainText.ifPresent(emailDTO::setBodyPlainText);
 
+        Optional<String> bodyHtml = gmailDetail.getPayload().getParts().stream()
+                .filter(partItem -> Objects.equals(partItem.getMimeType(), "text/html"))
+                .map(GmailDetail.Parts::getBody)
+                .map(GmailDetail.Body::getData)
+                .map(this::decodeGmailBase64)
+                .findFirst();
 
-//        Optional<String> bodyHtml = gmailDetail.getPayload().getParts().stream()
-//                .filter(partItem -> Objects.equals(partItem.getMimeType(), "text/html"))
-//                .map(GmailDetail.Parts::getBody)
-//                .map(GmailDetail.Body::getData)
-//                .findFirst();
-
-//        if (bodyHtml.isPresent()) {
-//            String decodedBodyHtml = this.decodeBase64(bodyHtml.toString());
-//            emailDTO.setBodyPlainText(decodedBodyHtml);
-//        }
+        bodyHtml.ifPresent(emailDTO::setBodyHtml);
 
         return emailDTO;
     }
@@ -153,62 +147,17 @@ public class GmailService {
         }
     }
 
-    public String decodeBase64(String base64EncodedString) {
+
+    public String decodeGmailBase64(String encodedString){
         try {
-            if (base64EncodedString == null || base64EncodedString.isEmpty()) {
-                return "Empty body";
-            }
-            // Remove whitespace characters using streams and lambdas
-            String cleanedString = base64EncodedString.chars()
-                    .filter(c -> !Character.isWhitespace(c))
-                    .collect(StringBuilder::new, StringBuilder::appendCodePoint, StringBuilder::append) // Corrected line
-                    .toString();
-
-            // Allowed characters in Base64
-            Set<Character> allowedChars = new HashSet<>();
-            for (char c = 'A'; c <= 'Z'; c++) {
-                allowedChars.add(c);
-            }
-            for (char c = 'a'; c <= 'z'; c++) {
-                allowedChars.add(c);
-            }
-            for (char c = '0'; c <= '9'; c++) {
-                allowedChars.add(c);
-            }
-            allowedChars.add('+');
-            allowedChars.add('/');
-            allowedChars.add('=');
-
-            // Remove invalid characters using streams and lambdas
-            cleanedString = cleanedString.chars()
-                    .filter(c -> allowedChars.contains((char) c))
-                    .collect(StringBuilder::new, StringBuilder::appendCodePoint, StringBuilder::append) // Corrected line
-                    .toString();
-
-            // Check if the length is a multiple of 4
-            int mod = cleanedString.length() % 4;
-
-            // Pad the string with '=' if necessary
-            StringBuilder padding = new StringBuilder();
-            for (int i = 0; i < 4 - (mod % 4); i++) {
-                padding.append("=");
-            }
-            cleanedString += padding.toString();
-
-            // Try decoding with standard Base64 (might need adjustment)
-            byte[] decodedBytes = Base64.getDecoder().decode(cleanedString);
-            String decodedString = new String(decodedBytes, StandardCharsets.UTF_8);
-
-            if (decodedString.isEmpty()) {
-                // Try decoding with Base64URL (if standard Base64 fails)
-                decodedBytes = Base64.getUrlDecoder().decode(cleanedString);
-                decodedString = new String(decodedBytes, StandardCharsets.UTF_8);
-            }
-
-            return decodedString;
-        } catch (Exception e) {
-            LOGGER.info("Exception: " + e);
-            return "invalid base64 cannot be repair";
+            // special handle for base64 from gmail body
+            encodedString = encodedString.replace('-', '+').replace('_', '/');
+            byte[] decodedBytes = Base64.getDecoder().decode(encodedString);
+            LOGGER.info("decode success");
+            return new String(decodedBytes);
+        }catch (Exception e){
+            LOGGER.info("decode exception: " + e);
+            return "";
         }
     }
 }
