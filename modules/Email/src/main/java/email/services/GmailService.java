@@ -12,7 +12,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
@@ -104,7 +103,7 @@ public class GmailService {
                 .filter(partItem -> Objects.equals(partItem.getMimeType(), "text/plain"))
                 .map(GmailDetail.Parts::getBody)
                 .map(GmailDetail.Body::getData)
-                .map(this::decode)
+                .map(this::decodeGmailBase64)
                 .findFirst();
 
         bodyPlainText.ifPresent(emailDTO::setBodyPlainText);
@@ -113,7 +112,7 @@ public class GmailService {
                 .filter(partItem -> Objects.equals(partItem.getMimeType(), "text/html"))
                 .map(GmailDetail.Parts::getBody)
                 .map(GmailDetail.Body::getData)
-                .map(this::decode)
+                .map(this::decodeGmailBase64)
                 .findFirst();
 
         bodyHtml.ifPresent(emailDTO::setBodyHtml);
@@ -148,30 +147,14 @@ public class GmailService {
         }
     }
 
-    public  String repairBase64(String base64) {
-        // Remove all non-Base64 characters
-        base64 = base64.replaceAll("[^A-Za-z0-9+/=]", "");
 
-        // Fix padding
-        int paddingCount = base64.length() % 4;
-        if (paddingCount != 0) {
-            paddingCount = 4 - paddingCount;
-            StringBuilder sb = new StringBuilder(base64);
-            for (int i = 0; i < paddingCount; i++) {
-                sb.append('=');
-            }
-            base64 = sb.toString();
-        }
-
-        return base64;
-    }
-
-    public String decode(String encodedString){
+    public String decodeGmailBase64(String encodedString){
         try {
-            String repairedBase64 = this.repairBase64(encodedString);
-            byte[] decodedBytes = Base64.getDecoder().decode(repairedBase64);
+            // special handle for base64 from gmail body
+            encodedString = encodedString.replace('-', '+').replace('_', '/');
+            byte[] decodedBytes = Base64.getDecoder().decode(encodedString);
             LOGGER.info("decode success");
-            return new String(decodedBytes, StandardCharsets.UTF_8);
+            return new String(decodedBytes);
         }catch (Exception e){
             LOGGER.info("decode exception: " + e);
             return "";
