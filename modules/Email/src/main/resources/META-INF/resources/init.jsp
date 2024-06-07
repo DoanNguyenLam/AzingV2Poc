@@ -16,4 +16,5 @@
     String ggClientKey = portletPreferences.getValue(GG_CLIENT_KEY, "");
     String ggSecretKey = portletPreferences.getValue(GG_SECRET_KEY, "");
     String claudeAPIKey = portletPreferences.getValue(CLAUDE_API_KEY, "");
+    String ggAccessToken = portletPreferences.getValue(GG_ACCESS_TOKEN, "");
 %>
