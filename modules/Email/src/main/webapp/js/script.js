@@ -71,6 +71,7 @@ document.addEventListener("DOMContentLoaded", (event) => {
   };
 
   const updateOrginalEmail = (data) => {
+    console.log("updateOrginalEmail", data)
     const originalEmailHTML = document.querySelector(
         ".original-email .card .card-body .body"
     );
@@ -182,40 +183,8 @@ document.addEventListener("DOMContentLoaded", (event) => {
     return dataRes; // parses JSON response into native JavaScript objects
   }
 
-  const getSummary = async (card) => {
-    // const form = {
-    //   id,
-    // };
-    //
-    // try {
-    //   const res = await requestAsync(actionURL, "POST", form);
-    //   const resData = await res.json();
-    //   return resData;
-    // } catch (error) {
-    //   console.log(error);
-    //   return undefined;
-    // }
+  const fetchData = async (card) => {
     card.submit()
-  };
-
-  const getReplySuggestion = async (actionURL, id) => {
-    const form = {
-      id,
-    };
-
-    try {
-      const res = await requestAsync(actionURL, "POST", form);
-      const resData = await res.json();
-      return resData;
-    } catch (error) {
-      console.log(error);
-      return undefined;
-    }
-  };
-
-  const testCallAPI = async (form) => {
-    form.submit()
-    console.log("testCallAPI", form)
   }
 
   const handleClick = async (card, data) => {
@@ -238,7 +207,7 @@ document.addEventListener("DOMContentLoaded", (event) => {
     // Call api to get summary and suggestions
     try {
       const responses = await Promise.all([
-        getSummary(card)
+        fetchData(card)
       ]);
       console.log("response", responses);
       // Update DOM summary

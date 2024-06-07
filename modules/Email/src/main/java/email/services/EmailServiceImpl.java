@@ -19,6 +19,7 @@ import org.springframework.ui.ModelMap;
 
 import javax.portlet.PortletRequest;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
@@ -121,61 +122,62 @@ public class EmailServiceImpl implements EmailService {
 
         // TODO: impl get access token
         String accessToken = emailConfigs.getGmailAccessToken();
-        String sampleAccessToken = "ya29.a0AXooCgvtLs-KO50VjrWvzSK6VAwrOjhETRMew_163ypF4ijhZz2vbxpYGsSW9dW-4GknpWZ2cAe0WbQ7FL5dL1hz2SvdFpJksiuQyT-AZg3-_LtAS5JQT-CONEWvaBaGKs2w3yk0M7UHpaTl11RqhtpChRnEEy7V-hWQaCgYKASwSARASFQHGX2MiNQY-rBSG43I4KMtAwKIvlg0171";
-        List<EmailDTO> emailDTOList = getListOfEmails(sampleAccessToken);
+        String sampleAccessToken = "";
+        List<EmailDTO> emailDTOList;
 
         if (currentEmail != null) {
-//            String mailBody = "Hey cabien1307!\n" +
-//                    "\n" +
-//                    "You’ve just enabled two-factor authentication.\n" +
-//                    "\n" +
-//                    "Please take a moment to check that you have saved your recovery codes in a safe place. You can\n" +
-//                    "download your recovery codes at:\n" +
-//                    "\n" +
-//                    "https://github.com/settings/auth/recovery-codes\n" +
-//                    "\n" +
-//                    "Recovery codes are the only way to access your account again. By saving your\n" +
-//                    "recovery codes, you’ll be able to regain access if you:\n" +
-//                    "\n" +
-//                    "* Lose your phone\n" +
-//                    "* Delete your authenticator app\n" +
-//                    "* Change your phone number\n" +
-//                    "\n" +
-//                    "GitHub Support will not be able to restore access to your account.\n" +
-//                    "\n" +
-//                    "To disable two-factor authentication, visit\n" +
-//                    "https://github.com/settings/security\n" +
-//                    "\n" +
-//                    "More information about two-factor authentication can be found on GitHub Help at\n" +
-//                    "https://docs.github.com/articles/about-two-factor-authentication\n" +
-//                    "\n" +
-//                    "If you have any questions, please visit https://support.github.com.\n" +
-//                    "\n" +
-//                    "Thanks,\n" +
-//                    "Your friends at GitHub";
+            LOGGER.info("[RENDER SERVICE] - id = {}, thread id = {}", currentEmail.getId(), currentEmail.getThreadId());
+            String mailBody = "Hey cabien1307!\n" +
+                    "\n" +
+                    "You’ve just enabled two-factor authentication.\n" +
+                    "\n" +
+                    "Please take a moment to check that you have saved your recovery codes in a safe place. You can\n" +
+                    "download your recovery codes at:\n" +
+                    "\n" +
+                    "https://github.com/settings/auth/recovery-codes\n" +
+                    "\n" +
+                    "Recovery codes are the only way to access your account again. By saving your\n" +
+                    "recovery codes, you’ll be able to regain access if you:\n" +
+                    "\n" +
+                    "* Lose your phone\n" +
+                    "* Delete your authenticator app\n" +
+                    "* Change your phone number\n" +
+                    "\n" +
+                    "GitHub Support will not be able to restore access to your account.\n" +
+                    "\n" +
+                    "To disable two-factor authentication, visit\n" +
+                    "https://github.com/settings/security\n" +
+                    "\n" +
+                    "More information about two-factor authentication can be found on GitHub Help at\n" +
+                    "https://docs.github.com/articles/about-two-factor-authentication\n" +
+                    "\n" +
+                    "If you have any questions, please visit https://support.github.com.\n" +
+                    "\n" +
+                    "Thanks,\n" +
+                    "Your friends at GitHub";
 
-            String threadId = currentEmail.getThreadId();
-            String messageId = currentEmail.getId();
+            emailDTOList = getListOfEmails(sampleAccessToken);
 
-            String mailBody = this.getThreadDetail(emailConfigs.getGmailAccessToken(), threadId);
-
-            boolean isThread = !Objects.equals(threadId, messageId);
-
-            CompletableFuture<ClaudeMailResDTO> summaryFuture = CompletableFuture.supplyAsync(() -> this.summaryAndSuggestEmail(mailBody, true, emailConfigs.getClaudeAPIKey(), isThread));
-            CompletableFuture<ClaudeMailResDTO> suggestionFuture = CompletableFuture.supplyAsync(() -> this.summaryAndSuggestEmail(mailBody, false, emailConfigs.getClaudeAPIKey(), isThread));
-
-            CompletableFuture.allOf(summaryFuture, suggestionFuture).join();
-
-            ClaudeMailResDTO summaryResponse = summaryFuture.get();
-            ClaudeMailResDTO suggestionResponse = suggestionFuture.get();
-            if (summaryResponse == null || suggestionResponse == null) {
-                LOGGER.error("One of the responses is null: summaryResponse={}, suggestionResponse={}", summaryResponse, suggestionResponse);
-                return "error";
-            }
-            modelMap.put("summary", summaryResponse.getContent());
-            modelMap.put("suggestion", suggestionResponse.getContent());
+//            CompletableFuture<ClaudeMailResDTO> summaryFuture = CompletableFuture.supplyAsync(() -> this.summaryAndSuggestEmail(mailBody, true, emailConfigs.getClaudeAPIKey()));
+//            CompletableFuture<ClaudeMailResDTO> suggestionFuture = CompletableFuture.supplyAsync(() -> this.summaryAndSuggestEmail(mailBody, false, emailConfigs.getClaudeAPIKey()));
+//
+//            CompletableFuture.allOf(summaryFuture, suggestionFuture).join();
+//
+//            ClaudeMailResDTO summaryResponse = summaryFuture.get();
+//            ClaudeMailResDTO suggestionResponse = suggestionFuture.get();
+//            if (summaryResponse == null || suggestionResponse == null) {
+//                LOGGER.error("One of the responses is null: summaryResponse={}, suggestionResponse={}", summaryResponse, suggestionResponse);
+//                return "error";
+//            }
+//            modelMap.put("summary", summaryResponse.getContent());
+//            modelMap.put("suggestion", suggestionResponse.getContent());
+//            TODO: Get current email
+            modelMap.put("summary", "summary");
+            modelMap.put("suggestion", "suggestion");
+            modelMap.put("originalEmail", mailBody);
+        } else {
+            emailDTOList = getListOfEmails(sampleAccessToken);
         }
-
         modelMap.put("listEmails", emailDTOList);
         return "mails";
     }

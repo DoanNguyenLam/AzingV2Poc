@@ -12,6 +12,7 @@
                     <c:forEach items="${listEmails}" var="item">
                         <portlet:actionURL var="fetchData">
                             <portlet:param name="action" value="fetchData"/>
+                            <portlet:param name="thread-id" value="${item.threadId}"/>
                             <portlet:param name="id" value="${item.id}"/>
                         </portlet:actionURL>
                         <form:form action="${fetchData}" method="post" class="card email-card w-100 mb-3">
@@ -45,10 +46,18 @@
                                 <h5 class="card-title mb-0">Original email</h5>
                             </div>
                             <div class="body mt-3">
-                                <div class="no-selected">
-                                    Please select an email to summary.
-                                </div>
-
+                                <c:choose>
+                                    <c:when test="${not empty originalEmail}">
+                                        <div>
+                                            ${originalEmail}
+                                        </div>
+                                    </c:when>
+                                    <c:otherwise>
+                                        <div class="no-selected">
+                                            Please select an email to summary.
+                                        </div>
+                                    </c:otherwise>
+                                </c:choose>
                             </div>
                         </div>
                     </div>
@@ -64,9 +73,18 @@
                                     <h5 class="card-title mb-0">Email summary</h5>
                                 </div>
                                 <div class="body mt-3">
-                                    <div class="no-selected">
-                                        Please select an email to summary.
-                                    </div>
+                                <c:choose>
+                                    <c:when test="${not empty summary}">
+                                        <div>
+                                            ${summary}
+                                        </div>
+                                    </c:when>
+                                    <c:otherwise>
+                                        <div class="no-selected">
+                                            Please select an email to summary.
+                                        </div>
+                                    </c:otherwise>
+                                </c:choose>
                                 </div>
                             </div>
                         </div>
@@ -81,10 +99,18 @@
                                     </div>
                                 </div>
                                 <div class="body mt-3">
-                                    <div class="no-selected">
-                                        Please select an email to summary.
-                                    </div>
-
+                                    <c:choose>
+                                        <c:when test="${not empty suggestion}">
+                                            <div>
+                                                ${suggestion}
+                                            </div>
+                                        </c:when>
+                                        <c:otherwise>
+                                            <div class="no-selected">
+                                                Please select an email to summary.
+                                            </div>
+                                        </c:otherwise>
+                                    </c:choose>
                                 </div>
                             </div>
                         </div>
