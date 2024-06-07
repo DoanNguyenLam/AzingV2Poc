@@ -19,6 +19,7 @@ import org.springframework.ui.ModelMap;
 
 import javax.portlet.PortletRequest;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
@@ -104,10 +105,11 @@ public class EmailServiceImpl implements EmailService {
 
         // TODO: impl get access token
         String accessToken = emailConfigs.getGmailAccessToken();
-        String sampleAccessToken = "ya29.a0AXooCgvtLs-KO50VjrWvzSK6VAwrOjhETRMew_163ypF4ijhZz2vbxpYGsSW9dW-4GknpWZ2cAe0WbQ7FL5dL1hz2SvdFpJksiuQyT-AZg3-_LtAS5JQT-CONEWvaBaGKs2w3yk0M7UHpaTl11RqhtpChRnEEy7V-hWQaCgYKASwSARASFQHGX2MiNQY-rBSG43I4KMtAwKIvlg0171";
-        List<EmailDTO> emailDTOList = getListOfEmails(sampleAccessToken);
+        String sampleAccessToken = "";
+        List<EmailDTO> emailDTOList;
 
         if (currentEmail != null) {
+            LOGGER.info("[RENDER SERVICE] - id = {}, thread id = {}", currentEmail.getId(), currentEmail.getThreadId());
             String mailBody = "Hey cabien1307!\n" +
                     "\n" +
                     "You’ve just enabled two-factor authentication.\n" +
@@ -137,21 +139,28 @@ public class EmailServiceImpl implements EmailService {
                     "Thanks,\n" +
                     "Your friends at GitHub";
 
-            CompletableFuture<ClaudeMailResDTO> summaryFuture = CompletableFuture.supplyAsync(() -> this.summaryAndSuggestEmail(mailBody, true, emailConfigs.getClaudeAPIKey()));
-            CompletableFuture<ClaudeMailResDTO> suggestionFuture = CompletableFuture.supplyAsync(() -> this.summaryAndSuggestEmail(mailBody, false, emailConfigs.getClaudeAPIKey()));
+            emailDTOList = getListOfEmails(sampleAccessToken);
 
-            CompletableFuture.allOf(summaryFuture, suggestionFuture).join();
-
-            ClaudeMailResDTO summaryResponse = summaryFuture.get();
-            ClaudeMailResDTO suggestionResponse = suggestionFuture.get();
-            if (summaryResponse == null || suggestionResponse == null) {
-                LOGGER.error("One of the responses is null: summaryResponse={}, suggestionResponse={}", summaryResponse, suggestionResponse);
-                return "error";
-            }
-            modelMap.put("summary", summaryResponse.getContent());
-            modelMap.put("suggestion", suggestionResponse.getContent());
+//            CompletableFuture<ClaudeMailResDTO> summaryFuture = CompletableFuture.supplyAsync(() -> this.summaryAndSuggestEmail(mailBody, true, emailConfigs.getClaudeAPIKey()));
+//            CompletableFuture<ClaudeMailResDTO> suggestionFuture = CompletableFuture.supplyAsync(() -> this.summaryAndSuggestEmail(mailBody, false, emailConfigs.getClaudeAPIKey()));
+//
+//            CompletableFuture.allOf(summaryFuture, suggestionFuture).join();
+//
+//            ClaudeMailResDTO summaryResponse = summaryFuture.get();
+//            ClaudeMailResDTO suggestionResponse = suggestionFuture.get();
+//            if (summaryResponse == null || suggestionResponse == null) {
+//                LOGGER.error("One of the responses is null: summaryResponse={}, suggestionResponse={}", summaryResponse, suggestionResponse);
+//                return "error";
+//            }
+//            modelMap.put("summary", summaryResponse.getContent());
+//            modelMap.put("suggestion", suggestionResponse.getContent());
+//            TODO: Get current email
+            modelMap.put("summary", "summary");
+            modelMap.put("suggestion", "suggestion");
+            modelMap.put("originalEmail", mailBody);
+        } else {
+            emailDTOList = getListOfEmails(sampleAccessToken);
         }
-
         modelMap.put("listEmails", emailDTOList);
         return "mails";
     }

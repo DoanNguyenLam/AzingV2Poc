@@ -61,7 +61,6 @@ public class GmailService {
 
 
     public EmailDTO getListMailDetail(String accessToken, String userId, GmailMessageIds.GmailMessage gmailIdsInfo) {
-        LOGGER.info("Get mail details of mailId {}", gmailIdsInfo.getId());
         String url = "https://gmail.googleapis.com/gmail/v1/users/" + userId + "/messages/" + gmailIdsInfo.getId();
 
         RestTemplate restTemplate = new RestTemplate();
@@ -166,7 +165,6 @@ public class GmailService {
             // special handle for base64 from gmail body
             encodedString = encodedString.replace('-', '+').replace('_', '/');
             byte[] decodedBytes = Base64.getDecoder().decode(encodedString);
-            LOGGER.info("decode success");
             return new String(decodedBytes);
         }catch (Exception e){
             LOGGER.info("decode exception: " + e);

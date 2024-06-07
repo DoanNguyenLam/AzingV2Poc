@@ -67,45 +67,34 @@ public class EmailController {
 	}
 
 	@ActionMapping(params = "action=fetchData")
-	public void fetchData(@RequestParam("id") String id, ModelMap modelMap, ActionResponse actionResponse,
+	public void fetchData(@RequestParam("id") String id, @RequestParam("thread-id") String threadId, ModelMap modelMap, ActionResponse actionResponse,
 									 SessionStatus sessionStatus, PortletSession session) {
-		_logger.info("Fetch data: {}", id);
+		_logger.info("Fetch data Action");
+		_logger.info("[FETCH DATA] - id: [{}] - threadId: [{}]", id, threadId);
+
 		MutableRenderParameters mutableRenderParameters =
 				actionResponse.getRenderParameters();
+
+		session.setAttribute("id", id);
+		session.setAttribute("threadId", threadId);
 
 		mutableRenderParameters.setValue("javax.portlet.action", "success");
 		sessionStatus.setComplete();
 	}
 
-	@ActionMapping(params = "action=summaryMail")
-	public List<ClaudeMailResDTO> summaryMail(@RequestParam("thread-id") String threadId, ModelMap modelMap, ActionResponse actionResponse,
-											  SessionStatus sessionStatus, PortletSession session, PortletRequest portletRequest) throws Exception{
-		_logger.info("[SUMMARY EMAIL] - threadId: {}", threadId);
-
-		// TODO: implement get mail body by thread
-		String mailBody = "sample";
-
-		// TODO: config claude api key
-		EmailConfigs emailConfigs = new EmailConfigs();
-		emailConfigs.updateProps(portletRequest);
-
-		// summary email
-		CompletableFuture<ClaudeMailResDTO> summaryFuture = CompletableFuture.supplyAsync(() -> emailService.summaryAndSuggestEmail(mailBody,true, emailConfigs.getClaudeAPIKey()));
-		CompletableFuture<ClaudeMailResDTO> suggestionFuture = CompletableFuture.supplyAsync(() -> emailService.summaryAndSuggestEmail(mailBody,false, emailConfigs.getClaudeAPIKey()));
-
-		CompletableFuture.allOf(summaryFuture, suggestionFuture).join();
-
-		ClaudeMailResDTO summaryResponse = summaryFuture.get();
-		ClaudeMailResDTO suggestionResponse = suggestionFuture.get();
-
-		return Arrays.asList(summaryResponse, suggestionResponse);
-	}
-
 	@RenderMapping(params = "javax.portlet.action=success")
 	public String updateView(ModelMap modelMap, PortletRequest portletRequest) throws ExecutionException, InterruptedException {
-
 		_logger.info("Update view called");
+
+		PortletSession session = portletRequest.getPortletSession();
+		String threadId = (String) session.getAttribute("threadId", PortletSession.PORTLET_SCOPE);
+		String emailId = (String) session.getAttribute("id", PortletSession.PORTLET_SCOPE);
+		_logger.info("[UPDATE VIEW] - Thread ID: {}, Email ID: {}", threadId, emailId);
+
 		EmailDTO emailDTO = new EmailDTO();
+		emailDTO.setId(emailId);
+		emailDTO.setThreadId(threadId);
+
 		EmailConfigs emailConfigs = new EmailConfigs();
 		emailConfigs.updateProps(portletRequest);
 
@@ -114,54 +103,8 @@ public class EmailController {
 		return view;
 	}
 
-	@ActionMapping(params = "action=summary")
-	@ResponseBody
-	public String handleSummary(@RequestBody EmailDTOReq emailDTOReq) {
-		_logger.info("handleSummary");
-		// Process the data
-		_logger.info("emailDTOReq {}", emailDTOReq);
-		return "Data received successfully!";
-	}
-
-	@ActionMapping(params = "action=submitData")
-	public void handleData(
-			@ModelAttribute("user") User user, BindingResult bindingResult,
-			ModelMap modelMap, Locale locale, ActionResponse actionResponse,
-			SessionStatus sessionStatus) {
-		// Process the data
-		_logger.info("FK form");
-		_localValidatorFactoryBean.validate(user, bindingResult);
-
-		if (!bindingResult.hasErrors()) {
-			if (_logger.isDebugEnabled()) {
-				_logger.debug("firstName=" + user.getFirstName());
-				_logger.debug("lastName=" + user.getLastName());
-			}
-
-			MutableRenderParameters mutableRenderParameters =
-					actionResponse.getRenderParameters();
-
-			mutableRenderParameters.setValue("javax.portlet.action", "success");
-
-			sessionStatus.setComplete();
-		}
-		else {
-			bindingResult.addError(
-					new ObjectError(
-							"user",
-							_messageSource.getMessage(
-									"please-correct-the-following-errors", null, locale)));
-		}
-	}
-
 	private static final Logger _logger = LoggerFactory.getLogger(
 		EmailController.class);
-
-	@Autowired
-	private LocalValidatorFactoryBean _localValidatorFactoryBean;
-
-	@Autowired
-	private MessageSource _messageSource;
 
 
 }
