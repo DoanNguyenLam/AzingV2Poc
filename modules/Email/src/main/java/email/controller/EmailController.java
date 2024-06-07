@@ -56,8 +56,14 @@ public class EmailController {
 		_logger.info("Google Secret Key: {}", emailConfigs.getGoggleSecretKey());
 		_logger.info("Claude API Key: {}", emailConfigs.getClaudeAPIKey());
 
-		String view = emailService.renderService(modelMap, portletRequest, emailConfigs, null);
-		return view;
+		try {
+			String view = emailService.renderService(modelMap, portletRequest, emailConfigs, null);
+			return view;
+		} catch (Exception e) {
+			e.printStackTrace();
+			return "error";
+		}
+
 	}
 
 	@ActionMapping(params = "action=fetchData")
