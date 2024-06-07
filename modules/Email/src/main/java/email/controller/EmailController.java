@@ -24,10 +24,7 @@ import javax.portlet.ActionResponse;
 import javax.portlet.MutableRenderParameters;
 import javax.portlet.PortletRequest;
 import javax.portlet.PortletSession;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Locale;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 
@@ -57,8 +54,7 @@ public class EmailController {
 		_logger.info("Claude API Key: {}", emailConfigs.getClaudeAPIKey());
 
 		try {
-			String view = emailService.renderService(modelMap, portletRequest, emailConfigs, null);
-			return view;
+            return emailService.renderService(modelMap, portletRequest, emailConfigs, null);
 		} catch (Exception e) {
 			e.printStackTrace();
 			return "error";
@@ -78,20 +74,21 @@ public class EmailController {
 	}
 
 	@ActionMapping(params = "action=summaryMail")
-	public List<ClaudeMailResDTO> summaryMail(@RequestParam("thread-id") String threadId, ModelMap modelMap, ActionResponse actionResponse,
+	public List<ClaudeMailResDTO> summaryMail(@RequestParam("thread-id") String threadId, @RequestParam("message-id") String messageId,ModelMap modelMap, ActionResponse actionResponse,
 											  SessionStatus sessionStatus, PortletSession session, PortletRequest portletRequest) throws Exception{
 		_logger.info("[SUMMARY EMAIL] - threadId: {}", threadId);
-
-		// TODO: implement get mail body by thread
-		String mailBody = "sample";
 
 		// TODO: config claude api key
 		EmailConfigs emailConfigs = new EmailConfigs();
 		emailConfigs.updateProps(portletRequest);
 
-		// summary email
-		CompletableFuture<ClaudeMailResDTO> summaryFuture = CompletableFuture.supplyAsync(() -> emailService.summaryAndSuggestEmail(mailBody,true, emailConfigs.getClaudeAPIKey()));
-		CompletableFuture<ClaudeMailResDTO> suggestionFuture = CompletableFuture.supplyAsync(() -> emailService.summaryAndSuggestEmail(mailBody,false, emailConfigs.getClaudeAPIKey()));
+		String mailBody = emailService.getThreadDetail(emailConfigs.getGmailAccessToken(), threadId);
+
+		boolean isThread = !Objects.equals(threadId, messageId);
+
+        // summary email
+		CompletableFuture<ClaudeMailResDTO> summaryFuture = CompletableFuture.supplyAsync(() -> emailService.summaryAndSuggestEmail(mailBody,true, emailConfigs.getClaudeAPIKey(), isThread));
+		CompletableFuture<ClaudeMailResDTO> suggestionFuture = CompletableFuture.supplyAsync(() -> emailService.summaryAndSuggestEmail(mailBody,false, emailConfigs.getClaudeAPIKey(), isThread));
 
 		CompletableFuture.allOf(summaryFuture, suggestionFuture).join();
 

@@ -21,6 +21,7 @@ import javax.portlet.PortletRequest;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 
@@ -32,8 +33,11 @@ public class EmailServiceImpl implements EmailService {
 
     private static final String API_URL = "https://api.anthropic.com/v1/messages";
     private static final String API_VERSION = "2023-06-01";
-    private static final String SUMMARY_PROMPT = "This is a email body, summarize it for me: ";
-    private static final String SUGGEST_PROMPT = "This is a mail body, give me the reply suggestion: ";
+    private static final String MAIL_SUMMARY_PROMPT = "This is a email body, summarize it for me: ";
+    private static final String MAIL_SUGGEST_PROMPT = "This is a mail body, give me the reply suggestion: ";
+
+    private static final String THREAD_SUMMARY_PROMPT = "this is an email conversation, summarize it for me: ";
+    private static final String THREAD_SUGGEST_PROMPT = "this is an email conversation, give me the reply suggestion: ";
 
     private final Logger LOGGER = LoggerFactory.getLogger(this.getClass());
     @Override
@@ -47,7 +51,7 @@ public class EmailServiceImpl implements EmailService {
     }
 
     @Override
-    public ClaudeMailResDTO summaryAndSuggestEmail(String mailBody, Boolean isSummary, String claudeApiKey) {
+    public ClaudeMailResDTO summaryAndSuggestEmail(String mailBody, Boolean isSummary, String claudeApiKey, Boolean isThread) {
 
         LOGGER.info("KEY {}", claudeApiKey);
 
@@ -60,11 +64,18 @@ public class EmailServiceImpl implements EmailService {
 
         String content;
         String mailType = "SUMMARY";
-        if (isSummary){
-            content = SUMMARY_PROMPT + mailBody;
-        }else{
-            content = SUGGEST_PROMPT + mailBody;
-            mailType = "SUGGESTION";
+        if (isThread){
+            content = THREAD_SUMMARY_PROMPT + mailBody;
+            if (!isSummary) {
+                content = THREAD_SUGGEST_PROMPT + mailBody;
+                mailType = "SUGGESTION";
+            }
+        } else {
+            content = MAIL_SUMMARY_PROMPT + mailBody;
+            if (!isSummary){
+                content = MAIL_SUGGEST_PROMPT + mailBody;
+                mailType = "SUGGESTION";
+            }
         }
 
         // Create the request body using the model class
@@ -99,6 +110,12 @@ public class EmailServiceImpl implements EmailService {
         }
     }
 
+
+    @Override
+    public String getThreadDetail(String accessToken, String threadId){
+        return gmailService.getGmailThreadDetail(accessToken, threadId);
+    }
+
     @Override
     public String renderService(ModelMap modelMap, PortletRequest portletRequest, EmailConfigs emailConfigs, EmailDTO currentEmail) throws InterruptedException, ExecutionException {
 
@@ -108,37 +125,44 @@ public class EmailServiceImpl implements EmailService {
         List<EmailDTO> emailDTOList = getListOfEmails(sampleAccessToken);
 
         if (currentEmail != null) {
-            String mailBody = "Hey cabien1307!\n" +
-                    "\n" +
-                    "You’ve just enabled two-factor authentication.\n" +
-                    "\n" +
-                    "Please take a moment to check that you have saved your recovery codes in a safe place. You can\n" +
-                    "download your recovery codes at:\n" +
-                    "\n" +
-                    "https://github.com/settings/auth/recovery-codes\n" +
-                    "\n" +
-                    "Recovery codes are the only way to access your account again. By saving your\n" +
-                    "recovery codes, you’ll be able to regain access if you:\n" +
-                    "\n" +
-                    "* Lose your phone\n" +
-                    "* Delete your authenticator app\n" +
-                    "* Change your phone number\n" +
-                    "\n" +
-                    "GitHub Support will not be able to restore access to your account.\n" +
-                    "\n" +
-                    "To disable two-factor authentication, visit\n" +
-                    "https://github.com/settings/security\n" +
-                    "\n" +
-                    "More information about two-factor authentication can be found on GitHub Help at\n" +
-                    "https://docs.github.com/articles/about-two-factor-authentication\n" +
-                    "\n" +
-                    "If you have any questions, please visit https://support.github.com.\n" +
-                    "\n" +
-                    "Thanks,\n" +
-                    "Your friends at GitHub";
+//            String mailBody = "Hey cabien1307!\n" +
+//                    "\n" +
+//                    "You’ve just enabled two-factor authentication.\n" +
+//                    "\n" +
+//                    "Please take a moment to check that you have saved your recovery codes in a safe place. You can\n" +
+//                    "download your recovery codes at:\n" +
+//                    "\n" +
+//                    "https://github.com/settings/auth/recovery-codes\n" +
+//                    "\n" +
+//                    "Recovery codes are the only way to access your account again. By saving your\n" +
+//                    "recovery codes, you’ll be able to regain access if you:\n" +
+//                    "\n" +
+//                    "* Lose your phone\n" +
+//                    "* Delete your authenticator app\n" +
+//                    "* Change your phone number\n" +
+//                    "\n" +
+//                    "GitHub Support will not be able to restore access to your account.\n" +
+//                    "\n" +
+//                    "To disable two-factor authentication, visit\n" +
+//                    "https://github.com/settings/security\n" +
+//                    "\n" +
+//                    "More information about two-factor authentication can be found on GitHub Help at\n" +
+//                    "https://docs.github.com/articles/about-two-factor-authentication\n" +
+//                    "\n" +
+//                    "If you have any questions, please visit https://support.github.com.\n" +
+//                    "\n" +
+//                    "Thanks,\n" +
+//                    "Your friends at GitHub";
 
-            CompletableFuture<ClaudeMailResDTO> summaryFuture = CompletableFuture.supplyAsync(() -> this.summaryAndSuggestEmail(mailBody, true, emailConfigs.getClaudeAPIKey()));
-            CompletableFuture<ClaudeMailResDTO> suggestionFuture = CompletableFuture.supplyAsync(() -> this.summaryAndSuggestEmail(mailBody, false, emailConfigs.getClaudeAPIKey()));
+            String threadId = currentEmail.getThreadId();
+            String messageId = currentEmail.getId();
+
+            String mailBody = this.getThreadDetail(emailConfigs.getGmailAccessToken(), threadId);
+
+            boolean isThread = !Objects.equals(threadId, messageId);
+
+            CompletableFuture<ClaudeMailResDTO> summaryFuture = CompletableFuture.supplyAsync(() -> this.summaryAndSuggestEmail(mailBody, true, emailConfigs.getClaudeAPIKey(), isThread));
+            CompletableFuture<ClaudeMailResDTO> suggestionFuture = CompletableFuture.supplyAsync(() -> this.summaryAndSuggestEmail(mailBody, false, emailConfigs.getClaudeAPIKey(), isThread));
 
             CompletableFuture.allOf(summaryFuture, suggestionFuture).join();
 
