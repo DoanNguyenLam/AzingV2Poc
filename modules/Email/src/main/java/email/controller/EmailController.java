@@ -52,6 +52,7 @@ public class EmailController {
 		_logger.info("Google Client Key: {}", emailConfigs.getGoogleClientKey());
 		_logger.info("Google Secret Key: {}", emailConfigs.getGoggleSecretKey());
 		_logger.info("Claude API Key: {}", emailConfigs.getClaudeAPIKey());
+		_logger.info("Google Access Token: {}", emailConfigs.getGgAccessToken());
 
 		try {
             return emailService.renderService(modelMap, portletRequest, emailConfigs, null);

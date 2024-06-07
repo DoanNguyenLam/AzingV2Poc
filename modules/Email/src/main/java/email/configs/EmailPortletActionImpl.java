@@ -29,14 +29,17 @@ public class EmailPortletActionImpl extends DefaultConfigurationAction {
         String ggClientKey = ParamUtil.getString(actionRequest, GG_CLIENT_KEY);
         String ggSecretKey = ParamUtil.getString(actionRequest, GG_SECRET_KEY);
         String claudeAPIKey = ParamUtil.getString(actionRequest, CLAUDE_API_KEY);
+        String ggAccessToken = ParamUtil.getString(actionRequest, GG_ACCESS_TOKEN);
 
         setPreference(actionRequest, GG_CLIENT_KEY, ggClientKey);
         setPreference(actionRequest, GG_SECRET_KEY, ggSecretKey);
         setPreference(actionRequest, CLAUDE_API_KEY, claudeAPIKey);
+        setPreference(actionRequest, GG_ACCESS_TOKEN, ggAccessToken);
 
         _log.info("GG CLIENT KEY: {}", ggClientKey);
         _log.info("GG SECRET KEY: {}", ggSecretKey);
         _log.info("CLAUDE API KEY: {}", claudeAPIKey);
+        _log.info("GG ACCESS TOKEN: {}", ggAccessToken);
 
         super.processAction(portletConfig, actionRequest, actionResponse);
     }

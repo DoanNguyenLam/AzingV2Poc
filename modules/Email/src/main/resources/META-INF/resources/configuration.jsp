@@ -51,6 +51,14 @@
             <aui:input label="" type="password" name="claudeAPIKey" cssClass="w-100" value="<%=claudeAPIKey%>"/>
         </aui:fieldset>
 
+        <%-- GG Access token key --%>
+        <label class="aui-field-label" for="<portlet:namespace />script">
+            <spring:message code="gg-access-token"></spring:message>
+        </label>
+        <aui:fieldset>
+            <aui:input label="" type="password" name="ggAccessToken" cssClass="w-100" value="<%=ggAccessToken%>"/>
+        </aui:fieldset>
+
 
         <aui:button-row>
             <aui:button type="submit"></aui:button>
