@@ -82,42 +82,54 @@ public class GmailService {
     }
 
     public EmailDTO proccessAzingMailFromGMail(GmailDetail gmailDetail) {
-        EmailDTO emailDTO = new EmailDTO();
-        emailDTO.setId(gmailDetail.getId());
-        emailDTO.setThreadId(gmailDetail.getThreadId());
-        emailDTO.setSnippet(gmailDetail.getSnippet());
+        try {
+            EmailDTO emailDTO = new EmailDTO();
+            if (gmailDetail == null) return emailDTO;
 
-        Optional<String> subject = gmailDetail.getPayload().getHeaders().stream().filter(headers -> Objects.equals(headers.getName(), "Subject")).map(GmailDetail.Headers::getValue).findFirst();
-        subject.ifPresent(emailDTO::setSubject);
+            emailDTO.setId(gmailDetail.getId());
+            emailDTO.setThreadId(gmailDetail.getThreadId());
+            emailDTO.setSnippet(gmailDetail.getSnippet());
 
-        Optional<String> sender = gmailDetail.getPayload().getHeaders().stream().filter(headers -> Objects.equals(headers.getName(), "From")).map(GmailDetail.Headers::getValue).findFirst();
-        sender.ifPresent(emailDTO::setSendFrom);
+            Optional<String> subject = gmailDetail.getPayload().getHeaders().stream().filter(headers -> Objects.equals(headers.getName(), "Subject")).map(GmailDetail.Headers::getValue).findFirst();
+            subject.ifPresent(emailDTO::setSubject);
 
-        Optional<String> receiver = gmailDetail.getPayload().getHeaders().stream().filter(headers -> Objects.equals(headers.getName(), "To")).map(GmailDetail.Headers::getValue).findFirst();
-        receiver.ifPresent(emailDTO::setSendTo);
+            Optional<String> sender = gmailDetail.getPayload().getHeaders().stream().filter(headers -> Objects.equals(headers.getName(), "From")).map(GmailDetail.Headers::getValue).findFirst();
+            sender.ifPresent(emailDTO::setSendFrom);
 
-        Optional<String> date = gmailDetail.getPayload().getHeaders().stream().filter(headers -> Objects.equals(headers.getName(), "Date")).map(GmailDetail.Headers::getValue).findFirst();
-        date.ifPresent(emailDTO::setDate);
+            Optional<String> receiver = gmailDetail.getPayload().getHeaders().stream().filter(headers -> Objects.equals(headers.getName(), "To")).map(GmailDetail.Headers::getValue).findFirst();
+            receiver.ifPresent(emailDTO::setSendTo);
 
-        Optional<String> bodyPlainText = gmailDetail.getPayload().getParts().stream()
-                .filter(partItem -> Objects.equals(partItem.getMimeType(), "text/plain"))
-                .map(GmailDetail.Parts::getBody)
-                .map(GmailDetail.Body::getData)
-                .map(this::decodeGmailBase64)
-                .findFirst();
+            Optional<String> date = gmailDetail.getPayload().getHeaders().stream().filter(headers -> Objects.equals(headers.getName(), "Date")).map(GmailDetail.Headers::getValue).findFirst();
+            date.ifPresent(emailDTO::setDate);
 
-        bodyPlainText.ifPresent(emailDTO::setBodyPlainText);
+            if (gmailDetail.getPayload().getParts() == null || gmailDetail.getPayload().getParts().isEmpty()) {
+                return emailDTO;
+            }
 
-        Optional<String> bodyHtml = gmailDetail.getPayload().getParts().stream()
-                .filter(partItem -> Objects.equals(partItem.getMimeType(), "text/html"))
-                .map(GmailDetail.Parts::getBody)
-                .map(GmailDetail.Body::getData)
-                .map(this::decodeGmailBase64)
-                .findFirst();
+            Optional<String> bodyPlainText = gmailDetail.getPayload().getParts().stream()
+                    .filter(partItem -> Objects.equals(partItem.getMimeType(), "text/plain"))
+                    .map(GmailDetail.Parts::getBody)
+                    .map(GmailDetail.Body::getData)
+                    .map(this::decodeGmailBase64)
+                    .findFirst();
 
-        bodyHtml.ifPresent(emailDTO::setBodyHtml);
+            bodyPlainText.ifPresent(emailDTO::setBodyPlainText);
 
-        return emailDTO;
+            Optional<String> bodyHtml = gmailDetail.getPayload().getParts().stream()
+                    .filter(partItem -> Objects.equals(partItem.getMimeType(), "text/html"))
+                    .map(GmailDetail.Parts::getBody)
+                    .map(GmailDetail.Body::getData)
+                    .map(this::decodeGmailBase64)
+                    .findFirst();
+
+            bodyHtml.ifPresent(emailDTO::setBodyHtml);
+
+            return emailDTO;
+        } catch (Exception exception) {
+            exception.printStackTrace();
+            return new EmailDTO();
+        }
+
     }
 
     public String getUserId(String accessToken) {
@@ -150,6 +162,7 @@ public class GmailService {
 
     public String decodeGmailBase64(String encodedString){
         try {
+            if (encodedString == null) return "";
             // special handle for base64 from gmail body
             encodedString = encodedString.replace('-', '+').replace('_', '/');
             byte[] decodedBytes = Base64.getDecoder().decode(encodedString);
