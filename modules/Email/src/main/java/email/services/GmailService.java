@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import email.dto.EmailDTO;
 import email.dto.GmailDTO.GmailDetail;
 import email.dto.GmailDTO.GmailMessageIds;
+import email.dto.GmailDTO.GmailThreadDetail;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.*;
@@ -131,6 +132,45 @@ public class GmailService {
 
     }
 
+    public String getGmailThreadDetail(String accessToken, String threadId){
+        String userId = this.getUserId(accessToken);
+        if (userId == null || userId.isEmpty()){
+            return null;
+        }
+
+        String url = "https://gmail.googleapis.com/gmail/v1/users/" + userId + "/threads/" + threadId;
+        RestTemplate restTemplate = new RestTemplate();
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("Authorization", "Bearer " + accessToken);
+        HttpEntity<String> entity = new HttpEntity<>(headers);
+
+        ResponseEntity<GmailThreadDetail> response = restTemplate.exchange(url, HttpMethod.GET, entity, GmailThreadDetail.class);
+        if (response.getBody() == null || response.getStatusCode() != HttpStatus.valueOf(200)){
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED);
+        }
+
+        GmailThreadDetail threadDetails = response.getBody();
+        if (threadDetails == null || threadDetails.getMessages().isEmpty()){
+            return "";
+        }
+
+        List<GmailDetail> gmailDetails = threadDetails.getMessages();
+        GmailDetail gmailDetail = gmailDetails.get(gmailDetails.size() -1);
+
+        if (gmailDetail.getPayload().getParts() == null || gmailDetail.getPayload().getParts().isEmpty()) {
+            return "";
+        }
+
+        Optional<String> bodyPlainText = gmailDetail.getPayload().getParts().stream()
+                .filter(partItem -> Objects.equals(partItem.getMimeType(), "text/plain"))
+                .map(GmailDetail.Parts::getBody)
+                .map(GmailDetail.Body::getData)
+                .map(this::decodeGmailBase64)
+                .findFirst();
+
+        return bodyPlainText.orElse("");
+    }
+
     public String getUserId(String accessToken) {
         LOGGER.info("Get Gmail userId");
 
@@ -171,4 +211,5 @@ public class GmailService {
             return "";
         }
     }
+
 }

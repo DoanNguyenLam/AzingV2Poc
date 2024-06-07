@@ -22,6 +22,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 
@@ -33,8 +34,11 @@ public class EmailServiceImpl implements EmailService {
 
     private static final String API_URL = "https://api.anthropic.com/v1/messages";
     private static final String API_VERSION = "2023-06-01";
-    private static final String SUMMARY_PROMPT = "This is a email body, summarize it for me: ";
-    private static final String SUGGEST_PROMPT = "This is a mail body, give me the reply suggestion: ";
+    private static final String MAIL_SUMMARY_PROMPT = "This is a email body, summarize it for me: ";
+    private static final String MAIL_SUGGEST_PROMPT = "This is a mail body, give me the reply suggestion: ";
+
+    private static final String THREAD_SUMMARY_PROMPT = "this is an email conversation, summarize it for me: ";
+    private static final String THREAD_SUGGEST_PROMPT = "this is an email conversation, give me the reply suggestion: ";
 
     private final Logger LOGGER = LoggerFactory.getLogger(this.getClass());
     @Override
@@ -48,7 +52,7 @@ public class EmailServiceImpl implements EmailService {
     }
 
     @Override
-    public ClaudeMailResDTO summaryAndSuggestEmail(String mailBody, Boolean isSummary, String claudeApiKey) {
+    public ClaudeMailResDTO summaryAndSuggestEmail(String mailBody, Boolean isSummary, String claudeApiKey, Boolean isThread) {
 
         LOGGER.info("KEY {}", claudeApiKey);
 
@@ -61,11 +65,18 @@ public class EmailServiceImpl implements EmailService {
 
         String content;
         String mailType = "SUMMARY";
-        if (isSummary){
-            content = SUMMARY_PROMPT + mailBody;
-        }else{
-            content = SUGGEST_PROMPT + mailBody;
-            mailType = "SUGGESTION";
+        if (isThread){
+            content = THREAD_SUMMARY_PROMPT + mailBody;
+            if (!isSummary) {
+                content = THREAD_SUGGEST_PROMPT + mailBody;
+                mailType = "SUGGESTION";
+            }
+        } else {
+            content = MAIL_SUMMARY_PROMPT + mailBody;
+            if (!isSummary){
+                content = MAIL_SUGGEST_PROMPT + mailBody;
+                mailType = "SUGGESTION";
+            }
         }
 
         // Create the request body using the model class
@@ -98,6 +109,12 @@ public class EmailServiceImpl implements EmailService {
                 throw new RuntimeException(e);
             }
         }
+    }
+
+
+    @Override
+    public String getThreadDetail(String accessToken, String threadId){
+        return gmailService.getGmailThreadDetail(accessToken, threadId);
     }
 
     @Override

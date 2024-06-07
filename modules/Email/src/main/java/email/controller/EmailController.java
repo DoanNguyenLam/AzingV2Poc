@@ -24,10 +24,7 @@ import javax.portlet.ActionResponse;
 import javax.portlet.MutableRenderParameters;
 import javax.portlet.PortletRequest;
 import javax.portlet.PortletSession;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Locale;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 
@@ -57,8 +54,7 @@ public class EmailController {
 		_logger.info("Claude API Key: {}", emailConfigs.getClaudeAPIKey());
 
 		try {
-			String view = emailService.renderService(modelMap, portletRequest, emailConfigs, null);
-			return view;
+            return emailService.renderService(modelMap, portletRequest, emailConfigs, null);
 		} catch (Exception e) {
 			e.printStackTrace();
 			return "error";
