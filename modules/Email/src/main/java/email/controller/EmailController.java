@@ -49,10 +49,10 @@ public class EmailController {
 
 		EmailConfigs emailConfigs = new EmailConfigs();
 		emailConfigs.updateProps(portletRequest);
-		_logger.info("Google Client Key: {}", emailConfigs.getGoogleClientKey());
-		_logger.info("Google Secret Key: {}", emailConfigs.getGoggleSecretKey());
-		_logger.info("Claude API Key: {}", emailConfigs.getClaudeAPIKey());
-		_logger.info("Google Access Token: {}", emailConfigs.getGgAccessToken());
+		_logger.info("Google Client Key: {}", !emailConfigs.getGoogleClientKey().isEmpty() ? "******" : "Empty");
+		_logger.info("Google Secret Key: {}", !emailConfigs.getGoggleSecretKey().isEmpty() ? "******": "Empty");
+		_logger.info("Claude API Key: {}", !emailConfigs.getClaudeAPIKey().isEmpty() ? "******" : "Empty");
+		_logger.info("Google Access Token: {}", !emailConfigs.getGgAccessToken().isEmpty() ? "******" : "Empty");
 
 		try {
             return emailService.renderService(modelMap, portletRequest, emailConfigs, null);
@@ -66,8 +66,7 @@ public class EmailController {
 	@ActionMapping(params = "action=fetchData")
 	public void fetchData(@RequestParam("id") String id, @RequestParam("thread-id") String threadId, ModelMap modelMap, ActionResponse actionResponse,
 									 SessionStatus sessionStatus, PortletSession session) {
-		_logger.info("Fetch data Action");
-		_logger.info("[FETCH DATA] - id: [{}] - threadId: [{}]", id, threadId);
+		_logger.info("[FETCH DATA ACTION] - id: [{}] - threadId: [{}]", id, threadId);
 
 		MutableRenderParameters mutableRenderParameters =
 				actionResponse.getRenderParameters();

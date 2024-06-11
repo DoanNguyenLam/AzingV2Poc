@@ -1,6 +1,6 @@
 document.addEventListener("DOMContentLoaded", (event) => {
   const emailCards = document.querySelectorAll(".card.email-card");
-
+  document.getElementById("email-portlet").attachShadow({mode: "open"});
   emailCards.forEach(async function (card) {
     card.addEventListener("click", async function () {
       const subject = card.querySelector(".card-title").innerText;
