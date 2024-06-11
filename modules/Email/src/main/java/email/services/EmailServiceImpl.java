@@ -34,8 +34,8 @@ public class EmailServiceImpl implements EmailService {
     private static final String MAIL_SUMMARY_PROMPT = "This is a email body, summarize it for me: ";
     private static final String MAIL_SUGGEST_PROMPT = "This is a mail body, give me the reply suggestion: ";
 
-    private static final String THREAD_SUMMARY_PROMPT = "this is an email conversation, summarize it for me: ";
-    private static final String THREAD_SUGGEST_PROMPT = "this is an email conversation, give me the reply suggestion: ";
+    private static final String THREAD_SUMMARY_PROMPT = "this is an email conversation, please give me a summize response below 100 words: ";
+    private static final String THREAD_SUGGEST_PROMPT = "This is an email conversation, please give me a suggested response below 100 words: ";
 
     private final Logger LOGGER = LoggerFactory.getLogger(this.getClass());
     @Override
@@ -51,8 +51,7 @@ public class EmailServiceImpl implements EmailService {
     @Override
     public ClaudeMailResDTO summaryAndSuggestEmail(String mailBody, Boolean isSummary, String claudeApiKey, Boolean isThread) {
 
-        LOGGER.info("KEY {}", claudeApiKey);
-
+        LOGGER.info("[{} EMAIL] - running ...", isSummary ? "SUMMARY" : "SUGGESTION");
         // Create the headers
         HttpHeaders headers = new HttpHeaders();
         headers.set("x-api-key", claudeApiKey);
@@ -100,8 +99,10 @@ public class EmailServiceImpl implements EmailService {
         } else {
             try {
                 String result = mapper.readValue(response, ClaudeResponseDTO.class).getContent().get(0).getText();
+                LOGGER.info("[{} EMAIL] - done!", isSummary ? "SUMMARY" : "SUGGESTION");
                 return new ClaudeMailResDTO(mailType, result);
             } catch (IOException e) {
+                LOGGER.info("[{} EMAIL] - error!", isSummary ? "SUMMARY" : "SUGGESTION");
                 LOGGER.error("Error parsing API response", e);
                 throw new RuntimeException(e);
             }
@@ -115,6 +116,7 @@ public class EmailServiceImpl implements EmailService {
 
     @Override
     public String renderService(ModelMap modelMap, PortletRequest portletRequest, EmailConfigs emailConfigs, EmailDTO currentEmail) throws InterruptedException, ExecutionException {
+        LOGGER.info("[RENDER SERVICE] - running ...");
 
         // TODO: impl get access token
         String accessToken = emailConfigs.getGgAccessToken();
@@ -122,36 +124,45 @@ public class EmailServiceImpl implements EmailService {
 
         if (currentEmail != null) {
             LOGGER.info("[RENDER SERVICE] - id = {}, thread id = {}", currentEmail.getId(), currentEmail.getThreadId());
-            String mailBody = "<div id=\":pi\" class=\"ii gt\" jslog=\"20277; u014N:xr6bB; 1:WyIjdGhyZWFkLWY6MTgwMTE2OTIwODAyMjkwMzExMSJd; 4:WyIjbXNnLWY6MTgwMTE2OTIwODAyMjkwMzExMSJd\"><div id=\":pj\" class=\"a3s aiL msg6496342487879356631\"><u></u><div style=\"margin:0;padding:0\" bgcolor=\"#FFFFFF\"><table width=\"100%\" height=\"100%\" style=\"min-width:348px\" border=\"0\" cellspacing=\"0\" cellpadding=\"0\" lang=\"en\"><tbody><tr height=\"32\" style=\"height:32px\"><td></td></tr><tr align=\"center\"><td><div><div></div></div><table border=\"0\" cellspacing=\"0\" cellpadding=\"0\" style=\"padding-bottom:20px;max-width:516px;min-width:220px\"><tbody><tr><td width=\"8\" style=\"width:8px\"></td><td><div style=\"border-style:solid;border-width:thin;border-color:#dadce0;border-radius:8px;padding:40px 20px\" align=\"center\" class=\"m_6496342487879356631mdv2rw\"><img src=\"https://ci3.googleusercontent.com/meips/ADKq_NZa00tQPIx4fdFGtuHSHzYQ-whZFD7HWD3OhXR05fT4XqJ_Wca2erL9R9_382bPBUom-sDOVfi4G3FXbYaZsHsGqQUAL6-JIKgEzWlarZbeNSLveyc6EKOURFQhphfzG2ZAwLiyrJsC=s0-d-e1-ft#https://www.gstatic.com/images/branding/googlelogo/2x/googlelogo_color_74x24dp.png\" width=\"74\" height=\"24\" aria-hidden=\"true\" style=\"margin-bottom:16px\" alt=\"Google\" class=\"CToWUd\" data-bit=\"iit\"><div style=\"font-family:'Google Sans',Roboto,RobotoDraft,Helvetica,Arial,sans-serif;border-bottom:thin solid #dadce0;color:rgba(0,0,0,0.87);line-height:32px;padding-bottom:24px;text-align:center;word-break:break-word\"><div style=\"font-size:24px\"><a>azing-gmail-summary</a> đã được cấp quyền truy cập vào Tài khoản Google của&nbsp;bạn </div><table align=\"center\" style=\"margin-top:8px\"><tbody><tr style=\"line-height:normal\"><td align=\"right\" style=\"padding-right:8px\"><img width=\"20\" height=\"20\" style=\"width:20px;height:20px;vertical-align:sub;border-radius:50%\" src=\"https://lh3.googleusercontent.com/a/ACg8ocKA7xbzNLHspCNmh6h_mSForiZgGnig2qowhh1-x9TbfIoM9XE=s96-c\" alt=\"\" class=\"CToWUd\" data-bit=\"iit\"></td><td><a style=\"font-family:'Google Sans',Roboto,RobotoDraft,Helvetica,Arial,sans-serif;color:rgba(0,0,0,0.87);font-size:14px;line-height:20px\">lamdn13072000@gmail.com</a></td></tr></tbody></table> </div><div style=\"font-family:Roboto-Regular,Helvetica,Arial,sans-serif;font-size:14px;color:rgba(0,0,0,0.87);line-height:20px;padding-top:20px;text-align:left\"><br>Nếu không cấp quyền truy cập thì bạn nên kiểm tra hoạt động này và bảo mật tài khoản của mình.<div style=\"padding-top:32px;text-align:center\"><a href=\"https://accounts.google.com/AccountChooser?Email=lamdn13072000@gmail.com&amp;continue=https://myaccount.google.com/alert/nt/1717728811000?rfn%3D127%26rfnc%3D1%26eid%3D2694610908232355575%26et%3D0\" style=\"font-family:'Google Sans',Roboto,RobotoDraft,Helvetica,Arial,sans-serif;line-height:16px;color:#ffffff;font-weight:400;text-decoration:none;font-size:14px;display:inline-block;padding:10px 24px;background-color:#4184f3;border-radius:5px;min-width:90px\" target=\"_blank\" data-saferedirecturl=\"https://www.google.com/url?q=https://accounts.google.com/AccountChooser?Email%3Dlamdn13072000@gmail.com%26continue%3Dhttps://myaccount.google.com/alert/nt/1717728811000?rfn%253D127%2526rfnc%253D1%2526eid%253D2694610908232355575%2526et%253D0&amp;source=gmail&amp;ust=1717816796156000&amp;usg=AOvVaw2TFERvnMnx9dIh3IiJY-Sn\">Kiểm tra hoạt động</a></div></div><div style=\"padding-top:20px;font-size:12px;line-height:16px;color:#5f6368;letter-spacing:0.3px;text-align:center\">Bạn cũng có thể xem hoạt động bảo mật tại<br><a style=\"color:rgba(0,0,0,0.87);text-decoration:inherit\">https://myaccount.google.com/<wbr>notifications</a></div></div><div style=\"text-align:left\"><div style=\"font-family:Roboto-Regular,Helvetica,Arial,sans-serif;color:rgba(0,0,0,0.54);font-size:11px;line-height:18px;padding-top:12px;text-align:center\"><div>Chúng tôi gửi email này để thông báo cho bạn biết về những thay đổi quan trọng đối với Tài khoản Google và dịch vụ của bạn.</div><div style=\"direction:ltr\">© 2024 Google LLC, <a class=\"m_6496342487879356631afal\" style=\"font-family:Roboto-Regular,Helvetica,Arial,sans-serif;color:rgba(0,0,0,0.54);font-size:11px;line-height:18px;padding-top:12px;text-align:center\">1600 Amphitheatre Parkway, Mountain View, CA 94043, USA</a></div></div></div></td><td width=\"8\" style=\"width:8px\"></td></tr></tbody></table></td></tr><tr height=\"32\" style=\"height:32px\"><td></td></tr></tbody></table></div></div><div class=\"yj6qo\"></div></div>";
 
             emailDTOList = getListOfEmails(accessToken);
-            Optional<EmailDTO> emailDTOOptional = emailDTOList.stream().filter(emailDTO1 -> emailDTO1.getId().equals(currentEmail.getId())).findFirst();
+            Optional<EmailDTO> emailDTOOptional = emailDTOList
+                    .stream()
+                    .filter(emailDTO1 -> emailDTO1.getId().equals(currentEmail.getId()))
+                    .findFirst();
             if (emailDTOOptional.isPresent()) {
                 EmailDTO emailDTO = emailDTOOptional.get();
                 modelMap.put("originalEmail", emailDTO.getBodyHtml());
-
+            }
+            String bodyText;
+            Boolean isTheard ;
+            if (currentEmail.getId().equals(currentEmail.getThreadId())) {
+                bodyText = emailDTOOptional.get().getBodyPlainText();
+                isTheard = false;
+            } else {
+                bodyText = gmailService.getGmailThreadDetail(accessToken, currentEmail.getThreadId());
+                isTheard = true;
             }
 
-//            CompletableFuture<ClaudeMailResDTO> summaryFuture = CompletableFuture.supplyAsync(() -> this.summaryAndSuggestEmail(mailBody, true, emailConfigs.getClaudeAPIKey()));
-//            CompletableFuture<ClaudeMailResDTO> suggestionFuture = CompletableFuture.supplyAsync(() -> this.summaryAndSuggestEmail(mailBody, false, emailConfigs.getClaudeAPIKey()));
+//            CompletableFuture<ClaudeMailResDTO> summaryFuture = CompletableFuture.supplyAsync(() -> this.summaryAndSuggestEmail(bodyText, true, emailConfigs.getClaudeAPIKey(), isTheard));
+//            CompletableFuture<ClaudeMailResDTO> suggestionFuture = CompletableFuture.supplyAsync(() -> this.summaryAndSuggestEmail(bodyText, false, emailConfigs.getClaudeAPIKey(), isTheard));
 //
 //            CompletableFuture.allOf(summaryFuture, suggestionFuture).join();
 //
 //            ClaudeMailResDTO summaryResponse = summaryFuture.get();
 //            ClaudeMailResDTO suggestionResponse = suggestionFuture.get();
 //            if (summaryResponse == null || suggestionResponse == null) {
+//                LOGGER.info("[RENDER SERVICE] - error!");
 //                LOGGER.error("One of the responses is null: summaryResponse={}, suggestionResponse={}", summaryResponse, suggestionResponse);
 //                return "error";
 //            }
-//            modelMap.put("summary", summaryResponse.getContent());
-//            modelMap.put("suggestion", suggestionResponse.getContent());
-//            TODO: Get current email
-            modelMap.put("summary", "summary");
-            modelMap.put("suggestion", "suggestion");
+            modelMap.put("summary", bodyText);
+            modelMap.put("suggestion", bodyText);
         } else {
             emailDTOList = getListOfEmails(accessToken);
         }
         modelMap.put("listMails", emailDTOList);
+        LOGGER.info("[RENDER SERVICE] - done!");
         return "mails";
     }
 }
