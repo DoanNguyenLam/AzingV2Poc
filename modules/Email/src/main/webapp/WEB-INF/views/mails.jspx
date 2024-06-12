@@ -16,7 +16,6 @@
                             <portlet:param name="id" value="${item.id}"/>
                         </portlet:actionURL>
                         <form:form action="${fetchData}" method="post" class="card email-card w-100 mb-3">
-                            <span>URL: ${fetchData}</span>
                             <div class="card-body">
                                 <div class="title">
                                     <h5 class="card-title">

@@ -43,7 +43,15 @@
             <aui:input label="" type="password" name="googleSecretKey" cssClass="w-100" value="<%=ggSecretKey%>"/>
         </aui:fieldset>
 
-        <%-- Claude API key --%>
+        <%-- GG Access token key --%>
+        <label class="aui-field-label" for="<portlet:namespace />script">
+            <spring:message code="gg-access-token"></spring:message>
+        </label>
+        <aui:fieldset>
+            <aui:input label="" type="password" name="ggAccessToken" cssClass="w-100" value="<%=ggAccessToken%>"/>
+        </aui:fieldset>
+
+        <%-- Claude API KEY --%>
         <label class="aui-field-label" for="<portlet:namespace />script">
             <spring:message code="claude-api-key"></spring:message>
         </label>
@@ -51,12 +59,32 @@
             <aui:input label="" type="password" name="claudeAPIKey" cssClass="w-100" value="<%=claudeAPIKey%>"/>
         </aui:fieldset>
 
-        <%-- GG Access token key --%>
+        <%-- Claude API KEY --%>
         <label class="aui-field-label" for="<portlet:namespace />script">
-            <spring:message code="gg-access-token"></spring:message>
+            <spring:message code="is-use-claude-ai"></spring:message>
         </label>
         <aui:fieldset>
-            <aui:input label="" type="password" name="ggAccessToken" cssClass="w-100" value="<%=ggAccessToken%>"/>
+            <aui:select label="" name="isUseClaudeAI" cssClass="w-50" value="<%= isUseClaudeAI %>">
+                <aui:option value="true" label="Enable"></aui:option>
+                <aui:option value="false" label="Disable"></aui:option>
+            </aui:select>
+        </aui:fieldset>
+
+
+        <%-- Prompt Summary --%>
+        <label class="aui-field-label" for="<portlet:namespace />script">
+            <spring:message code="prompt-summary"></spring:message>
+        </label>
+        <aui:fieldset>
+            <aui:input type="textarea" label="" name="promptSummary" cssClass="w-100" value="<%=promptSummary%>"/>
+        </aui:fieldset>
+
+        <%-- Prompt Suggestion --%>
+        <label class="aui-field-label" for="<portlet:namespace />script">
+            <spring:message code="prompt-suggestion"></spring:message>
+        </label>
+        <aui:fieldset>
+            <aui:input type="textarea" label="" name="promptSuggestion" cssClass="w-100" value="<%=prompSuggestion%>"/>
         </aui:fieldset>
 
 

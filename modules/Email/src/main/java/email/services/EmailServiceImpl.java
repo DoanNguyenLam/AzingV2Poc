@@ -5,7 +5,7 @@ import email.dto.ClaudeMailResDTO;
 import email.dto.ClaudeRequestDTO;
 import email.dto.ClaudeResponseDTO;
 import email.dto.EmailDTO;
-import email.utils.EmailConfigs;
+import email.utils.EmailPortletConfigs;
 import email.utils.Utils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -115,11 +115,11 @@ public class EmailServiceImpl implements EmailService {
     }
 
     @Override
-    public String renderService(ModelMap modelMap, PortletRequest portletRequest, EmailConfigs emailConfigs, EmailDTO currentEmail) throws InterruptedException, ExecutionException {
+    public String renderService(ModelMap modelMap, PortletRequest portletRequest, EmailPortletConfigs emailPortletConfigs, EmailDTO currentEmail) throws InterruptedException, ExecutionException {
         LOGGER.info("[RENDER SERVICE] - running ...");
 
         // TODO: impl get access token
-        String accessToken = emailConfigs.getGgAccessToken();
+        String accessToken = emailPortletConfigs.getGgAccessToken();
         List<EmailDTO> emailDTOList;
 
         if (currentEmail != null) {
@@ -144,18 +144,24 @@ public class EmailServiceImpl implements EmailService {
                 isTheard = true;
             }
 
-//            CompletableFuture<ClaudeMailResDTO> summaryFuture = CompletableFuture.supplyAsync(() -> this.summaryAndSuggestEmail(bodyText, true, emailConfigs.getClaudeAPIKey(), isTheard));
-//            CompletableFuture<ClaudeMailResDTO> suggestionFuture = CompletableFuture.supplyAsync(() -> this.summaryAndSuggestEmail(bodyText, false, emailConfigs.getClaudeAPIKey(), isTheard));
-//
-//            CompletableFuture.allOf(summaryFuture, suggestionFuture).join();
-//
-//            ClaudeMailResDTO summaryResponse = summaryFuture.get();
-//            ClaudeMailResDTO suggestionResponse = suggestionFuture.get();
-//            if (summaryResponse == null || suggestionResponse == null) {
-//                LOGGER.info("[RENDER SERVICE] - error!");
-//                LOGGER.error("One of the responses is null: summaryResponse={}, suggestionResponse={}", summaryResponse, suggestionResponse);
-//                return "error";
-//            }
+            LOGGER.info("Is use claude: {}", emailPortletConfigs.isUseClaudeAI());
+            if (emailPortletConfigs.isUseClaudeAI()) {
+                CompletableFuture<ClaudeMailResDTO> summaryFuture = CompletableFuture.supplyAsync(() -> this.summaryAndSuggestEmail(bodyText, true, emailPortletConfigs.getClaudeAPIKey(), isTheard));
+                CompletableFuture<ClaudeMailResDTO> suggestionFuture = CompletableFuture.supplyAsync(() -> this.summaryAndSuggestEmail(bodyText, false, emailPortletConfigs.getClaudeAPIKey(), isTheard));
+
+                CompletableFuture.allOf(summaryFuture, suggestionFuture).join();
+
+                ClaudeMailResDTO summaryResponse = summaryFuture.get();
+                ClaudeMailResDTO suggestionResponse = suggestionFuture.get();
+                if (summaryResponse == null || suggestionResponse == null) {
+                    LOGGER.info("[RENDER SERVICE] - error!");
+                    LOGGER.error("One of the responses is null: summaryResponse={}, suggestionResponse={}", summaryResponse, suggestionResponse);
+                    return "error";
+                }
+            } else {
+                LOGGER.info("[RENDER SEVICE] - Claude AI is disable");
+            }
+
             modelMap.put("summary", bodyText);
             modelMap.put("suggestion", bodyText);
         } else {

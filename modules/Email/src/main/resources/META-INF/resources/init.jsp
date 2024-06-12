@@ -17,4 +17,7 @@
     String ggSecretKey = portletPreferences.getValue(GG_SECRET_KEY, "");
     String claudeAPIKey = portletPreferences.getValue(CLAUDE_API_KEY, "");
     String ggAccessToken = portletPreferences.getValue(GG_ACCESS_TOKEN, "");
+    String isUseClaudeAI = portletPreferences.getValue(IS_USE_CLAUDE_AI, String.valueOf(false));
+    String promptSummary = portletPreferences.getValue(PROMPT_SUMMARY, "");
+    String prompSuggestion = portletPreferences.getValue(PROMPT_SUGGESTION, "");
 %>

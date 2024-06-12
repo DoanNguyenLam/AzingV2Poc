@@ -2,7 +2,7 @@ package email.services;
 
 import email.dto.ClaudeMailResDTO;
 import email.dto.EmailDTO;
-import email.utils.EmailConfigs;
+import email.utils.EmailPortletConfigs;
 import org.springframework.ui.ModelMap;
 
 import javax.portlet.PortletRequest;
@@ -19,5 +19,5 @@ public interface EmailService {
 
     ClaudeMailResDTO summaryAndSuggestEmail(String mailBody, Boolean isSummary, String claudeApiKey, Boolean isThread) throws IOException;
 
-    String renderService(ModelMap modelMap, PortletRequest portletRequest, EmailConfigs emailConfigs, EmailDTO currentEmail) throws InterruptedException, ExecutionException;
+    String renderService(ModelMap modelMap, PortletRequest portletRequest, EmailPortletConfigs emailPortletConfigs, EmailDTO currentEmail) throws InterruptedException, ExecutionException;
 }
