@@ -17,7 +17,7 @@ public interface EmailService {
 
     String getThreadDetail(String accessToken, String threadId);
 
-    ClaudeMailResDTO summaryAndSuggestEmail(String mailBody, Boolean isSummary, String claudeApiKey, Boolean isThread) throws IOException;
+    ClaudeMailResDTO summaryAndSuggestEmail(EmailPortletConfigs emailPortletConfigs, String mailBody, Boolean isSummary, Boolean isThread) throws IOException;
 
     String renderService(ModelMap modelMap, PortletRequest portletRequest, EmailPortletConfigs emailPortletConfigs, EmailDTO currentEmail) throws InterruptedException, ExecutionException;
 }

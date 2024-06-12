@@ -31,11 +31,9 @@ public class EmailServiceImpl implements EmailService {
 
     private static final String API_URL = "https://api.anthropic.com/v1/messages";
     private static final String API_VERSION = "2023-06-01";
-    private static final String MAIL_SUMMARY_PROMPT = "This is a email body, summarize it for me: ";
-    private static final String MAIL_SUGGEST_PROMPT = "This is a mail body, give me the reply suggestion: ";
 
-    private static final String THREAD_SUMMARY_PROMPT = "this is an email conversation, please give me a summize response below 100 words: ";
-    private static final String THREAD_SUGGEST_PROMPT = "This is an email conversation, please give me a suggested response below 100 words: ";
+    private static final String SUMMARY_PROMPT = " Ensure the summary is within 200 words and presented in bullet points by html tag. ";
+    private static final String SUGGEST_PROMPT = " Ensure the suggestion is within 200 words and presented in bullet points by html tag. ";
 
     private final Logger LOGGER = LoggerFactory.getLogger(this.getClass());
     @Override
@@ -49,9 +47,16 @@ public class EmailServiceImpl implements EmailService {
     }
 
     @Override
-    public ClaudeMailResDTO summaryAndSuggestEmail(String mailBody, Boolean isSummary, String claudeApiKey, Boolean isThread) {
+    public ClaudeMailResDTO summaryAndSuggestEmail(EmailPortletConfigs emailPortletConfigs, String mailBody, Boolean isSummary, Boolean isThread) {
 
         LOGGER.info("[{} EMAIL] - running ...", isSummary ? "SUMMARY" : "SUGGESTION");
+        String claudeApiKey = emailPortletConfigs.getClaudeAPIKey();
+        String summaryPrompt = emailPortletConfigs.getPromptSummary();
+        String suggestionPrompt = emailPortletConfigs.getPromptSuggestion();
+        if (claudeApiKey.isEmpty() || suggestionPrompt.isEmpty() || summaryPrompt.isEmpty()) {
+            LOGGER.info("[{} EMAIL] - Some configs not found", isSummary ? "SUMMARY" : "SUGGESTION");
+            return null;
+        }
         // Create the headers
         HttpHeaders headers = new HttpHeaders();
         headers.set("x-api-key", claudeApiKey);
@@ -59,22 +64,10 @@ public class EmailServiceImpl implements EmailService {
         headers.set("User-Agent", "Application");
         headers.setContentType(MediaType.APPLICATION_JSON);
 
-        String content;
-        String mailType = "SUMMARY";
-        if (isThread){
-            content = THREAD_SUMMARY_PROMPT + mailBody;
-            if (!isSummary) {
-                content = THREAD_SUGGEST_PROMPT + mailBody;
-                mailType = "SUGGESTION";
-            }
-        } else {
-            content = MAIL_SUMMARY_PROMPT + mailBody;
-            if (!isSummary){
-                content = MAIL_SUGGEST_PROMPT + mailBody;
-                mailType = "SUGGESTION";
-            }
-        }
+        String content = (isSummary ? summaryPrompt + SUMMARY_PROMPT : suggestionPrompt + SUGGEST_PROMPT) + mailBody;
+        String mailType = isSummary ? "SUMMARY" : "SUGGESTION";
 
+        LOGGER.info("[{} EMAIL] - Prompt - [{}]", isSummary ? "SUMMARY" : "SUGGESTION", content);
         // Create the request body using the model class
         ClaudeRequestDTO request = new ClaudeRequestDTO(
                 Collections.singletonList(new ClaudeRequestDTO.Message("user", content))
@@ -118,7 +111,6 @@ public class EmailServiceImpl implements EmailService {
     public String renderService(ModelMap modelMap, PortletRequest portletRequest, EmailPortletConfigs emailPortletConfigs, EmailDTO currentEmail) throws InterruptedException, ExecutionException {
         LOGGER.info("[RENDER SERVICE] - running ...");
 
-        // TODO: impl get access token
         String accessToken = emailPortletConfigs.getGgAccessToken();
         List<EmailDTO> emailDTOList;
 
@@ -146,8 +138,8 @@ public class EmailServiceImpl implements EmailService {
 
             LOGGER.info("Is use claude: {}", emailPortletConfigs.isUseClaudeAI());
             if (emailPortletConfigs.isUseClaudeAI()) {
-                CompletableFuture<ClaudeMailResDTO> summaryFuture = CompletableFuture.supplyAsync(() -> this.summaryAndSuggestEmail(bodyText, true, emailPortletConfigs.getClaudeAPIKey(), isTheard));
-                CompletableFuture<ClaudeMailResDTO> suggestionFuture = CompletableFuture.supplyAsync(() -> this.summaryAndSuggestEmail(bodyText, false, emailPortletConfigs.getClaudeAPIKey(), isTheard));
+                CompletableFuture<ClaudeMailResDTO> summaryFuture = CompletableFuture.supplyAsync(() -> this.summaryAndSuggestEmail(emailPortletConfigs, bodyText, true, isTheard));
+                CompletableFuture<ClaudeMailResDTO> suggestionFuture = CompletableFuture.supplyAsync(() -> this.summaryAndSuggestEmail(emailPortletConfigs, bodyText, false, isTheard));
 
                 CompletableFuture.allOf(summaryFuture, suggestionFuture).join();
 
@@ -158,12 +150,15 @@ public class EmailServiceImpl implements EmailService {
                     LOGGER.error("One of the responses is null: summaryResponse={}, suggestionResponse={}", summaryResponse, suggestionResponse);
                     return "error";
                 }
+                modelMap.put("summary", summaryResponse.getContent());
+                modelMap.put("suggestion", suggestionResponse.getContent());
             } else {
                 LOGGER.info("[RENDER SEVICE] - Claude AI is disable");
+                modelMap.put("summary", bodyText);
+                modelMap.put("suggestion", bodyText);
             }
 
-            modelMap.put("summary", bodyText);
-            modelMap.put("suggestion", bodyText);
+
         } else {
             emailDTOList = getListOfEmails(accessToken);
         }
