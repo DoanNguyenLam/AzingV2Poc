@@ -35,6 +35,9 @@ public class EmailServiceImpl implements EmailService {
     private static final String SUMMARY_PROMPT = " Ensure the summary is within 200 words and presented in bullet points by html tag. ";
     private static final String SUGGEST_PROMPT = " Ensure the suggestion is within 200 words and presented in bullet points by html tag. ";
 
+    private static final String INTRODUCE_PROMPT_SINGLE_MAIL = "Here is the email content:";
+    private static final String INTRODUCE_PROMPT_CONVERSATION = "Here is the conversation thread content containing multiple emails exchanged between parties:";
+
     private final Logger LOGGER = LoggerFactory.getLogger(this.getClass());
     @Override
     public List<EmailDTO> getListOfEmails(String accessToken) {
@@ -51,9 +54,12 @@ public class EmailServiceImpl implements EmailService {
 
         LOGGER.info("[{} EMAIL] - running ...", isSummary ? "SUMMARY" : "SUGGESTION");
         String claudeApiKey = emailPortletConfigs.getClaudeAPIKey();
-        String summaryPrompt = emailPortletConfigs.getPromptSummary();
-        String suggestionPrompt = emailPortletConfigs.getPromptSuggestion();
-        if (claudeApiKey.isEmpty() || suggestionPrompt.isEmpty() || summaryPrompt.isEmpty()) {
+        String summaryPromptSingleMail = emailPortletConfigs.getPromptSummarySingleMail();
+        String suggestionPromptSingleMail = emailPortletConfigs.getPromptSuggestionSingleMail();
+        String summaryPromptConversation = emailPortletConfigs.getPromptSummaryConversation();
+        String suggestionPromptConversation = emailPortletConfigs.getPromptSuggestionConversation();
+
+        if (claudeApiKey.isEmpty() || suggestionPromptSingleMail.isEmpty() || summaryPromptSingleMail.isEmpty()) {
             LOGGER.info("[{} EMAIL] - Some configs not found", isSummary ? "SUMMARY" : "SUGGESTION");
             return null;
         }
@@ -64,7 +70,22 @@ public class EmailServiceImpl implements EmailService {
         headers.set("User-Agent", "Application");
         headers.setContentType(MediaType.APPLICATION_JSON);
 
-        String content = (isSummary ? summaryPrompt + SUMMARY_PROMPT : suggestionPrompt + SUGGEST_PROMPT) + mailBody;
+        String content = "";
+
+        if (isSummary){
+            if (isThread){
+                content = INTRODUCE_PROMPT_CONVERSATION + "\" " + mailBody + "\" " + summaryPromptConversation;
+            }else{
+                content = INTRODUCE_PROMPT_SINGLE_MAIL +  "\" " + mailBody + "\" " + summaryPromptSingleMail;
+            }
+        }else{
+            if (isThread){
+                content = INTRODUCE_PROMPT_CONVERSATION +  "\" " + mailBody + "\" " + suggestionPromptConversation;
+            }else{
+                content = INTRODUCE_PROMPT_SINGLE_MAIL +  "\" " + mailBody + "\" " + suggestionPromptSingleMail;
+            }
+        }
+
         String mailType = isSummary ? "SUMMARY" : "SUGGESTION";
 
         LOGGER.info("[{} EMAIL] - Prompt - [{}]", isSummary ? "SUMMARY" : "SUGGESTION", content);
@@ -125,21 +146,24 @@ public class EmailServiceImpl implements EmailService {
             if (emailDTOOptional.isPresent()) {
                 EmailDTO emailDTO = emailDTOOptional.get();
                 modelMap.put("originalEmail", emailDTO.getBodyHtml());
+            }else {
+                return "Mail empty";
             }
+
             String bodyText;
-            Boolean isTheard ;
+            boolean isThread ;
             if (currentEmail.getId().equals(currentEmail.getThreadId())) {
                 bodyText = emailDTOOptional.get().getBodyPlainText();
-                isTheard = false;
+                isThread = false;
             } else {
                 bodyText = gmailService.getGmailThreadDetail(accessToken, currentEmail.getThreadId());
-                isTheard = true;
+                isThread = true;
             }
 
             LOGGER.info("Is use claude: {}", emailPortletConfigs.isUseClaudeAI());
             if (emailPortletConfigs.isUseClaudeAI()) {
-                CompletableFuture<ClaudeMailResDTO> summaryFuture = CompletableFuture.supplyAsync(() -> this.summaryAndSuggestEmail(emailPortletConfigs, bodyText, true, isTheard));
-                CompletableFuture<ClaudeMailResDTO> suggestionFuture = CompletableFuture.supplyAsync(() -> this.summaryAndSuggestEmail(emailPortletConfigs, bodyText, false, isTheard));
+                CompletableFuture<ClaudeMailResDTO> summaryFuture = CompletableFuture.supplyAsync(() -> this.summaryAndSuggestEmail(emailPortletConfigs, bodyText, true, isThread));
+                CompletableFuture<ClaudeMailResDTO> suggestionFuture = CompletableFuture.supplyAsync(() -> this.summaryAndSuggestEmail(emailPortletConfigs, bodyText, false, isThread));
 
                 CompletableFuture.allOf(summaryFuture, suggestionFuture).join();
 

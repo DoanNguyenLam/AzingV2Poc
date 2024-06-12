@@ -1,0 +1,11 @@
+# summary single mail
+Please provide a concise summary of the key points and information contained in this email in no more than 200 words.
+
+# suggestion single mail
+Based on this email, please suggest a draft reply that addresses the main points and queries raised by the sender in no more than 200 words.
+
+# summary thread
+Can you summarize the overall context, main discussion points, and any outstanding issues or action items that emerge from this email exchange in no more than 200 words?
+
+# suggestion thread
+Given the context and flow of this email conversation, please provide a suggested draft reply that appropriately responds to the most recent email while addressing any unresolved points or questions from the previous exchanges in no more than 200 words.

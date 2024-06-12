@@ -17,24 +17,30 @@ public class EmailPortletConfigs {
     private String claudeAPIKey;
     private String ggAccessToken;
     private boolean isUseClaudeAI;
-    private String promptSummary;
-    private String promptSuggestion;
+    private String promptSummarySingleMail;
+    private String promptSuggestionSingleMail;
+    private String promptSummaryConversation;
+    private String promptSuggestionConversation;
 
     public void updateProps(PortletRequest portletRequest) {
-        String googleClientKey = portletRequest.getPreferences().getValue(GG_CLIENT_KEY, "");
-        String goggleSecretKey = portletRequest.getPreferences().getValue(GG_SECRET_KEY, "");
+//        String googleClientKey = portletRequest.getPreferences().getValue(GG_CLIENT_KEY, "");
+//        String goggleSecretKey = portletRequest.getPreferences().getValue(GG_SECRET_KEY, "");
         String claudeAPIKey = portletRequest.getPreferences().getValue(CLAUDE_API_KEY, "");
         String gmailAccessToken = portletRequest.getPreferences().getValue(GG_ACCESS_TOKEN, "");
         String isUseClaudeAI = portletRequest.getPreferences().getValue(IS_USE_CLAUDE_AI, String.valueOf(false));
-        String promptSummary = portletRequest.getPreferences().getValue(PROMPT_SUMMARY, "");
-        String promptSuggestion = portletRequest.getPreferences().getValue(PROMPT_SUGGESTION, "");
+        String promptSummarySingleMail = portletRequest.getPreferences().getValue(PROMPT_SUMMARY_SINGLE_MAIL, "");
+        String promptSuggestionSingleMail = portletRequest.getPreferences().getValue(PROMPT_SUGGESTION_SINGLE_MAIL, "");
+        String promptSummaryConversation = portletRequest.getPreferences().getValue(PROMPT_SUMMARY_CONVERSATION, "");
+        String promptSuggestionConversation = portletRequest.getPreferences().getValue(PROMPT_SUGGESTION_CONVERSATION, "");
 
         setGoogleClientKey(googleClientKey);
         setGoggleSecretKey(goggleSecretKey);
         setClaudeAPIKey(claudeAPIKey);
         setGgAccessToken(gmailAccessToken);
-        setUseClaudeAI(Boolean.valueOf(isUseClaudeAI));
-        setPromptSummary(promptSummary);
-        setPromptSuggestion(promptSuggestion);
+        setUseClaudeAI(Boolean.parseBoolean(isUseClaudeAI));
+        setPromptSummarySingleMail(promptSummarySingleMail);
+        setPromptSuggestionSingleMail(promptSuggestionSingleMail);
+        setPromptSummaryConversation(promptSummaryConversation);
+        setPromptSuggestionConversation(promptSuggestionConversation);
     }
 }

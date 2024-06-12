@@ -28,20 +28,20 @@
         />
 
         <%-- GG Client key --%>
-        <label class="aui-field-label" for="<portlet:namespace />script">
-            <spring:message code="gg-client-key"></spring:message>
-        </label>
-        <aui:fieldset>
-            <aui:input label="" name="googleClientKey" cssClass="w-100" value="<%=ggClientKey%>"/>
-        </aui:fieldset>
+<%--        <label class="aui-field-label" for="<portlet:namespace />script">--%>
+<%--            <spring:message code="gg-client-key"></spring:message>--%>
+<%--        </label>--%>
+<%--        <aui:fieldset>--%>
+<%--            <aui:input label="" name="googleClientKey" cssClass="w-100" value="<%=ggClientKey%>"/>--%>
+<%--        </aui:fieldset>--%>
 
-        <%-- GG Secret key --%>
-        <label class="aui-field-label" for="<portlet:namespace />script">
-            <spring:message code="gg-secret-key"></spring:message>
-        </label>
-        <aui:fieldset>
-            <aui:input label="" type="password" name="googleSecretKey" cssClass="w-100" value="<%=ggSecretKey%>"/>
-        </aui:fieldset>
+<%--        &lt;%&ndash; GG Secret key &ndash;%&gt;--%>
+<%--        <label class="aui-field-label" for="<portlet:namespace />script">--%>
+<%--            <spring:message code="gg-secret-key"></spring:message>--%>
+<%--        </label>--%>
+<%--        <aui:fieldset>--%>
+<%--            <aui:input label="" type="password" name="googleSecretKey" cssClass="w-100" value="<%=ggSecretKey%>"/>--%>
+<%--        </aui:fieldset>--%>
 
         <%-- GG Access token key --%>
         <label class="aui-field-label" for="<portlet:namespace />script">
@@ -71,20 +71,36 @@
         </aui:fieldset>
 
 
-        <%-- Prompt Summary --%>
+        <%-- Prompt Summary Single mail--%>
         <label class="aui-field-label" for="<portlet:namespace />script">
-            <spring:message code="prompt-summary"></spring:message>
+            <spring:message code="prompt-summary-single-mail"></spring:message>
         </label>
         <aui:fieldset>
-            <aui:input type="textarea" label="" name="promptSummary" cssClass="w-100" value="<%=promptSummary%>"/>
+            <aui:input type="textarea" label="" name="promptSummarySingleMail" cssClass="w-100" value="<%=promptSummarySingleMail%>"/>
         </aui:fieldset>
 
-        <%-- Prompt Suggestion --%>
+        <%-- Prompt Suggestion Single mail--%>
         <label class="aui-field-label" for="<portlet:namespace />script">
-            <spring:message code="prompt-suggestion"></spring:message>
+            <spring:message code="prompt-suggestion-single-mail"></spring:message>
         </label>
         <aui:fieldset>
-            <aui:input type="textarea" label="" name="promptSuggestion" cssClass="w-100" value="<%=prompSuggestion%>"/>
+            <aui:input type="textarea" label="" name="promptSuggestionSingleMail" cssClass="w-100" value="<%=promptSuggestionSingleMail%>"/>
+        </aui:fieldset>
+
+        <%-- Prompt Summary Single mail--%>
+        <label class="aui-field-label" for="<portlet:namespace />script">
+            <spring:message code="prompt-summary-conversation"></spring:message>
+        </label>
+        <aui:fieldset>
+            <aui:input type="textarea" label="" name="" cssClass="w-100" value="<%=promptSummaryConversation%>"/>
+        </aui:fieldset>
+
+        <%-- Prompt Suggestion Single mail--%>
+        <label class="aui-field-label" for="<portlet:namespace />script">
+            <spring:message code="prompt-suggestion-conversation"></spring:message>
+        </label>
+        <aui:fieldset>
+            <aui:input type="textarea" label="" name="promptSuggestionSingleMail" cssClass="w-100" value="<%=promptSuggestionConversation%>"/>
         </aui:fieldset>
 
 

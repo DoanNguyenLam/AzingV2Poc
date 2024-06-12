@@ -10,6 +10,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -210,6 +212,48 @@ public class GmailService {
             LOGGER.info("decode exception: " + e);
             return "";
         }
+    }
+
+    private final String OAUTH_URL = "https://accounts.google.com/o/oauth2/auth";
+    private final String TOKEN_URL = "https://oauth2.googleapis.com/token";
+    private final String CLIENT_ID = "";
+    private final String CLIENT_SECRET = "";
+    private final String SCOPES = "https://www.googleapis.com/auth/userinfo.profile https://www.googleapis.com/auth/gmail.modify https://www.googleapis.com/auth/gmail.labels";
+
+    private final String REDIRECT_URI = "http://localhost:8080/api/gmail/access-token";
+
+    public String gmailOauthUrl(){
+        return OAUTH_URL + "?" + "response_type=code" + "&client_id=" + CLIENT_ID + "&scope=" + SCOPES + "&redirect_uri=" + REDIRECT_URI;
+    }
+
+    public String getAccessToken(String authorizationCode) throws Exception {
+        RestTemplate restTemplate = new RestTemplate();
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+
+        Map<String, Object> requestBody = new HashMap<>();
+        requestBody.put("client_id", CLIENT_ID);
+        requestBody.put("client_secret", CLIENT_SECRET);
+        requestBody.put("redirect_uri", REDIRECT_URI);
+        requestBody.put("code", authorizationCode);
+        requestBody.put("grant_type", "authorization_code");
+
+        HttpEntity<Map<String, Object>> entity = new HttpEntity<>(requestBody, headers);
+
+        ResponseEntity<Map> response = restTemplate.exchange(
+                TOKEN_URL,
+                HttpMethod.POST,
+                entity,
+                Map.class
+        );
+
+        if (response.getBody() == null || response.getStatusCode() != HttpStatus.OK) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Gmail unauthorized");
+        }
+
+        Map<String, Object> responseBody = response.getBody();
+
+        return (String) responseBody.get("access_token");
     }
 
 }
