@@ -10,8 +10,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -31,7 +29,9 @@ public class GmailService {
         if (userId == null || userId.isEmpty()) {
             return null;
         }
-        String url = "https://gmail.googleapis.com/gmail/v1/users/" + userId + "/messages";
+
+        // Get unread email
+        String url = "https://gmail.googleapis.com/gmail/v1/users/" + userId + "/messages"  + "?q=is:unread";
 
         RestTemplate restTemplate = new RestTemplate();
 
