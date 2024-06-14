@@ -1,0 +1,11 @@
+# summary single mail
+Please provide a concise summary of the key points and information contained in this email in no more than 200 words.
+
+# suggestion single mail
+Based on this email, provide a direct draft reply addressing the main points and queries in no more than 200 words, without any introductory phrases or explanations. If a reply is not necessary or possible, simply state 'No need to reply for this email.'
+
+# summary thread
+Can you summarize the overall context, main discussion points, and any outstanding issues or action items that emerge from this email exchange in no more than 200 words?
+
+# suggestion thread
+Based on this email, provide a direct draft reply addressing the main points and queries in no more than 200 words, without any introductory phrases or explanations. If a reply is not necessary or possible, simply state 'No need to reply for this email.'
