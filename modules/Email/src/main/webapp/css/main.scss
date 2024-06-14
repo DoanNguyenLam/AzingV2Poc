@@ -1,0 +1,106 @@
+* {
+	margin: 0;
+	padding: 0;
+	box-sizing: border-box;
+}
+
+.portlet-layout .portlet-header {
+	margin-bottom: 0 !important;
+}
+
+#email-portlet {
+
+	.list-mails {
+		max-height: 600px;
+		overflow-y: scroll;
+
+		.card {
+			&.active {
+				border-left: 5px solid teal;
+			}
+
+			&:hover {
+				background-color: rgba(0, 0, 0, 0.05);
+				cursor: pointer;
+			}
+
+			.card-body {
+				.title {
+					text-align: justify;
+					overflow: hidden;
+					display: -webkit-box;
+					-webkit-box-orient: vertical;
+					-webkit-line-clamp: 1;
+				}
+
+				.body {
+					.card-text {
+						text-align: justify;
+						overflow: hidden;
+						display: -webkit-box;
+						-webkit-box-orient: vertical;
+						-webkit-line-clamp: 2;
+						font-size: 14px;
+					}
+				}
+			}
+
+			.date {
+				p {
+					text-align: right;
+					font-size: 12px;
+					font-style: italic;
+					margin-bottom: 0;
+				}
+			}
+		}
+	}
+
+	.original-email {
+		overflow-y: scroll;
+		max-height: 600px;
+		padding: 0 10px;
+
+		.title {
+			position: relative;
+
+			&::after {
+				position: absolute;
+				bottom: 0;
+				left: 0;
+				content: '';
+				width: 100px;
+				height: 4px;
+				background-color: teal;
+			}
+		}
+
+		.content {
+
+			margin-top: 20px;
+		}
+	}
+
+	.ai-tool {
+		max-height: 600px;
+		overflow-y: scroll;
+
+		.email-summary,
+		.reply-suggestion {
+			.title {
+				position: relative;
+
+				&::after {
+					position: absolute;
+					bottom: 0;
+					left: 0;
+					content: '';
+					width: 100px;
+					height: 4px;
+					background-color: teal;
+				}
+			}
+		}
+	}
+}
+
