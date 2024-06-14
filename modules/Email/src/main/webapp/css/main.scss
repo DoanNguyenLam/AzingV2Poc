@@ -8,6 +8,10 @@
 	margin-bottom: 0 !important;
 }
 
+body {
+	min-width: 1200px !important;
+}
+
 #email-portlet {
 
 	.list-mails {
@@ -60,6 +64,7 @@
 		overflow-y: scroll;
 		max-height: 600px;
 		padding: 0 10px;
+		font-size: 14px;
 
 		.title {
 			position: relative;
