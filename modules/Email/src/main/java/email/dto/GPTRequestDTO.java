@@ -9,18 +9,15 @@ import java.util.List;
 
 @Data
 @NoArgsConstructor
-public class ClaudeRequestDTO {
+public class GPTRequestDTO {
     @JsonProperty("model")
-    private String model = "claude-3-haiku-20240307";
-
-    @JsonProperty("max_tokens")
-    private int maxTokens = 4096;
+    private String model = "gpt-3.5-turbo";
 
     @JsonProperty("messages")
     private List<Message> messages;
 
-    public ClaudeRequestDTO(List<Message> messages) {
-     this.messages = messages;
+    public GPTRequestDTO(List<Message> messages) {
+        this.messages = messages;
     }
 
     @Data

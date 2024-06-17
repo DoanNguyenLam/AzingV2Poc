@@ -16,8 +16,9 @@
     String ggClientKey = portletPreferences.getValue(GG_CLIENT_KEY, "");
     String ggSecretKey = portletPreferences.getValue(GG_SECRET_KEY, "");
     String claudeAPIKey = portletPreferences.getValue(CLAUDE_API_KEY, "");
+    String gptAPIKey = portletPreferences.getValue(GPT_API_KEY, "");
+    String modal = portletPreferences.getValue(MODAL, "");
     String ggAccessToken = portletPreferences.getValue(GG_ACCESS_TOKEN, "");
-    String isUseClaudeAI = portletPreferences.getValue(IS_USE_CLAUDE_AI, String.valueOf(false));
     String promptSummarySingleMail = portletPreferences.getValue(PROMPT_SUMMARY_SINGLE_MAIL, "");
     String promptSuggestionSingleMail = portletPreferences.getValue(PROMPT_SUGGESTION_SINGLE_MAIL, "");
     String promptSummaryConversation = portletPreferences.getValue(PROMPT_SUMMARY_CONVERSATION, "");

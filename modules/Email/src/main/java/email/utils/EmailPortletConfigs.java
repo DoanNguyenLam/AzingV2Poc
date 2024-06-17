@@ -1,5 +1,6 @@
 package email.utils;
 
+import email.dto.ModalAI;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
@@ -15,8 +16,9 @@ public class EmailPortletConfigs {
     private String googleClientKey;
     private String goggleSecretKey;
     private String claudeAPIKey;
+    private String gptAPIKey;
+    private ModalAI modal;
     private String ggAccessToken;
-    private boolean isUseClaudeAI;
     private String promptSummarySingleMail;
     private String promptSuggestionSingleMail;
     private String promptSummaryConversation;
@@ -27,7 +29,8 @@ public class EmailPortletConfigs {
 //        String goggleSecretKey = portletRequest.getPreferences().getValue(GG_SECRET_KEY, "");
         String claudeAPIKey = portletRequest.getPreferences().getValue(CLAUDE_API_KEY, "");
         String gmailAccessToken = portletRequest.getPreferences().getValue(GG_ACCESS_TOKEN, "");
-        String isUseClaudeAI = portletRequest.getPreferences().getValue(IS_USE_CLAUDE_AI, String.valueOf(false));
+        String gptAPIKey = portletRequest.getPreferences().getValue(GPT_API_KEY, "");
+        ModalAI modal = ModalAI.valueOf(portletRequest.getPreferences().getValue(MODAL, ""));
         String promptSummarySingleMail = portletRequest.getPreferences().getValue(PROMPT_SUMMARY_SINGLE_MAIL, "");
         String promptSuggestionSingleMail = portletRequest.getPreferences().getValue(PROMPT_SUGGESTION_SINGLE_MAIL, "");
         String promptSummaryConversation = portletRequest.getPreferences().getValue(PROMPT_SUMMARY_CONVERSATION, "");
@@ -36,8 +39,9 @@ public class EmailPortletConfigs {
         setGoogleClientKey(googleClientKey);
         setGoggleSecretKey(goggleSecretKey);
         setClaudeAPIKey(claudeAPIKey);
+        setGptAPIKey(gptAPIKey);
+        setModal(modal);
         setGgAccessToken(gmailAccessToken);
-        setUseClaudeAI(Boolean.parseBoolean(isUseClaudeAI));
         setPromptSummarySingleMail(promptSummarySingleMail);
         setPromptSuggestionSingleMail(promptSuggestionSingleMail);
         setPromptSummaryConversation(promptSummaryConversation);
