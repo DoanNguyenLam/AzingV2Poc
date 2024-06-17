@@ -1,4 +1,5 @@
 <%@ page import="com.liferay.portal.kernel.util.Constants" %>
+<%@ page import="email.dto.ModalAI" %>
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ include file="./init.jsp" %>
 <%@ taglib prefix="spring" uri="http://www.springframework.org/tags"%>
@@ -59,14 +60,22 @@
             <aui:input label="" type="password" name="claudeAPIKey" cssClass="w-100" value="<%=claudeAPIKey%>"/>
         </aui:fieldset>
 
-        <%-- Claude API KEY --%>
+        <%-- CHAT GPT API KEY --%>
         <label class="aui-field-label" for="<portlet:namespace />script">
-            <spring:message code="is-use-claude-ai"></spring:message>
+            <spring:message code="gpt-api-key"></spring:message>
         </label>
         <aui:fieldset>
-            <aui:select label="" name="isUseClaudeAI" cssClass="w-50" value="<%= isUseClaudeAI %>">
-                <aui:option value="true" label="Enable"></aui:option>
-                <aui:option value="false" label="Disable"></aui:option>
+            <aui:input label="" type="password" name="gptAPIKey" cssClass="w-100" value="<%=gptAPIKey%>"/>
+        </aui:fieldset>
+
+        <%-- SELECT MODAL --%>
+        <label class="aui-field-label" for="<portlet:namespace />script">
+            <spring:message code="select-modal"></spring:message>
+        </label>
+        <aui:fieldset>
+            <aui:select label="" name="modal" cssClass="w-50" value="<%= modal %>">
+                <aui:option value="<%= ModalAI.CHAT_GPT %>" label="GPT-3.5 Turbo"></aui:option>
+                <aui:option value="<%= ModalAI.CLAUDE_AI %>" label="Claude 3 Haiku"></aui:option>
             </aui:select>
         </aui:fieldset>
 
