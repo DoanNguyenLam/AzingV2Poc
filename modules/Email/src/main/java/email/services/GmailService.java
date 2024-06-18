@@ -46,9 +46,56 @@ public class GmailService {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED);
         }
 
-        List<LabelDTO> labelDTOList = response.getBody().getLabels();
+        return response.getBody().getLabels();
+    }
 
-        return labelDTOList;
+    public void processGetNewLabels(String accessToken, List<String> currentLabels) {
+
+        List<LabelDTO> oldLabelDTOs = this.getListLabels(accessToken);
+        if (oldLabelDTOs.isEmpty()){
+            return;
+        }
+
+        List<String> oldLabelName = oldLabelDTOs.stream().map(LabelDTO::getName).collect(Collectors.toList());
+        if (oldLabelName.isEmpty()){
+            return;
+        }
+
+        List<String> newLabels = currentLabels.stream().filter(label -> !oldLabelName.contains(label)).collect(Collectors.toList());
+        if (newLabels.isEmpty()){
+            return;
+        }
+
+        this.updateNewLabels(accessToken, newLabels);
+    }
+
+    public void updateNewLabels(String accessToken, List<String> labels){
+        LOGGER.info("Update new labels [{}]", labels);
+
+        String userId = this.getUserId(accessToken);
+        if (userId == null || userId.isEmpty()) {
+            return;
+        }
+
+        String url = "https://gmail.googleapis.com/gmail/v1/users/"+ userId + "/labels";
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("Authorization", "Bearer " + accessToken);
+        headers.set("User-Agent", "Application");
+        RestTemplate restTemplate = new RestTemplate();
+
+        ExecutorService executorService = Executors.newFixedThreadPool(4);
+
+        CompletableFuture.allOf(labels.stream().map(label -> CompletableFuture.supplyAsync(() -> {
+            try {
+                String jsonBody = "{ \"name\": \"" + label + "\" }";
+                HttpEntity<String> entity = new HttpEntity<>(jsonBody, headers);
+                ResponseEntity<LabelDTO> response = restTemplate.postForEntity(url, entity, LabelDTO.class);
+                return response.getBody();
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+        })).toArray(CompletableFuture[]::new)).join();
+        executorService.shutdown();
     }
 
     public List<EmailDTO> getListMail(String accessToken) {
