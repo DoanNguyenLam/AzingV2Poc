@@ -2,6 +2,7 @@ package email.services;
 
 import email.dto.ClaudeMailResDTO;
 import email.dto.EmailDTO;
+import email.dto.LabelDTO;
 import email.utils.EmailPortletConfigs;
 import org.springframework.ui.ModelMap;
 
@@ -12,6 +13,8 @@ import java.util.concurrent.ExecutionException;
 
 public interface EmailService {
     List<EmailDTO> getListOfEmails(String accessToken);
+
+    List<LabelDTO> getListLabels(String accessToken);
 
     EmailDTO getEmailById(Long id);
 

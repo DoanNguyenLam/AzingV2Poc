@@ -6,6 +6,8 @@ import email.dto.EmailDTO;
 import email.dto.GmailDTO.GmailDetail;
 import email.dto.GmailDTO.GmailMessageIds;
 import email.dto.GmailDTO.GmailThreadDetail;
+import email.dto.LabelDTO;
+import email.dto.LabelResponseDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.*;
@@ -22,6 +24,33 @@ import java.util.stream.Collectors;
 @Service
 public class GmailService {
     private final Logger LOGGER = LoggerFactory.getLogger(this.getClass());
+
+    public List<LabelDTO> getListLabels(String accessToken) {
+        LOGGER.info("[LABEL] - get list labels");
+
+        String userId = this.getUserId(accessToken);
+        if (userId == null || userId.isEmpty()) {
+            return new ArrayList<>();
+        }
+
+        String url = "https://gmail.googleapis.com/gmail/v1/users/"+ userId + "/labels";
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("Authorization", "Bearer " + accessToken);
+        headers.set("User-Agent", "Application");
+        HttpEntity<String> entity = new HttpEntity<>(headers);
+
+        RestTemplate restTemplate = new RestTemplate();
+        ResponseEntity<LabelResponseDTO> response = restTemplate.exchange(url, HttpMethod.GET, entity, LabelResponseDTO.class);
+
+        if (response.getBody() == null || response.getStatusCode() != HttpStatus.valueOf(200)) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED);
+        }
+
+        List<LabelDTO> labelDTOList = response.getBody().getLabels();
+
+        return labelDTOList;
+    }
+
     public List<EmailDTO> getListMail(String accessToken) {
         LOGGER.info("Get gmail list ID by access token");
 
@@ -104,7 +133,13 @@ public class GmailService {
             Optional<String> date = gmailDetail.getPayload().getHeaders().stream().filter(headers -> Objects.equals(headers.getName(), "Date")).map(GmailDetail.Headers::getValue).findFirst();
             date.ifPresent(emailDTO::setDate);
 
+
             if (gmailDetail.getPayload().getParts() == null || gmailDetail.getPayload().getParts().isEmpty()) {
+                String body = gmailDetail.getPayload().getBody().getData();
+                if( body != null && !body.isEmpty()) {
+                    String bodyHtml = decodeGmailBase64(body);
+                    emailDTO.setBodyHtml(bodyHtml);
+                }
                 return emailDTO;
             }
 
@@ -160,6 +195,10 @@ public class GmailService {
         GmailDetail gmailDetail = gmailDetails.get(gmailDetails.size() -1);
 
         if (gmailDetail.getPayload().getParts() == null || gmailDetail.getPayload().getParts().isEmpty()) {
+            String body = gmailDetail.getPayload().getBody().getData();
+            if( body != null && !body.isEmpty()) {
+                return decodeGmailBase64(body);
+            }
             return "";
         }
 

@@ -21,6 +21,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
+import java.util.stream.Collectors;
 
 @Service
 public class EmailServiceImpl implements EmailService {
@@ -39,6 +40,11 @@ public class EmailServiceImpl implements EmailService {
     @Override
     public List<EmailDTO> getListOfEmails(String accessToken) {
         return gmailService.getListMail(accessToken);
+    }
+
+    @Override
+    public List<LabelDTO> getListLabels(String accessToken) {
+        return gmailService.getListLabels(accessToken);
     }
 
     @Override
@@ -171,12 +177,15 @@ public class EmailServiceImpl implements EmailService {
         LOGGER.info("[RENDER SERVICE] - running ...");
 
         String accessToken = emailPortletConfigs.getGgAccessToken();
-        List<EmailDTO> emailDTOList;
+        List<EmailDTO> emailDTOList = getListOfEmails(accessToken);
+
+        List<LabelDTO> labelDTOS = getListLabels(accessToken);
+        LOGGER.info("[RENDER SERVICE] - list labels {}", labelDTOS);
 
         if (currentEmail != null) {
             LOGGER.info("[RENDER SERVICE] - id = {}, thread id = {}", currentEmail.getId(), currentEmail.getThreadId());
 
-            emailDTOList = getListOfEmails(accessToken);
+            ;
             Optional<EmailDTO> emailDTOOptional = emailDTOList
                     .stream()
                     .filter(emailDTO1 -> emailDTO1.getId().equals(currentEmail.getId()))
@@ -192,14 +201,18 @@ public class EmailServiceImpl implements EmailService {
             boolean isThread ;
             if (currentEmail.getId().equals(currentEmail.getThreadId())) {
                 bodyText = emailDTOOptional.get().getBodyPlainText();
+                if (bodyText == null || bodyText.isEmpty()) {
+                    bodyText = emailDTOOptional.get().getBodyHtml();
+                }
                 isThread = false;
             } else {
                 bodyText = gmailService.getGmailThreadDetail(accessToken, currentEmail.getThreadId());
                 isThread = true;
             }
 
-            CompletableFuture<ClaudeMailResDTO> summaryFuture = CompletableFuture.supplyAsync(() -> this.summaryAndSuggestEmail(emailPortletConfigs, bodyText, true, isThread));
-            CompletableFuture<ClaudeMailResDTO> suggestionFuture = CompletableFuture.supplyAsync(() -> this.summaryAndSuggestEmail(emailPortletConfigs, bodyText, false, isThread));
+            String finalBodyText = bodyText;
+            CompletableFuture<ClaudeMailResDTO> summaryFuture = CompletableFuture.supplyAsync(() -> this.summaryAndSuggestEmail(emailPortletConfigs, finalBodyText, true, isThread));
+            CompletableFuture<ClaudeMailResDTO> suggestionFuture = CompletableFuture.supplyAsync(() -> this.summaryAndSuggestEmail(emailPortletConfigs, finalBodyText, false, isThread));
 
             CompletableFuture.allOf(summaryFuture, suggestionFuture).join();
 
@@ -214,8 +227,6 @@ public class EmailServiceImpl implements EmailService {
             modelMap.put("suggestion", suggestionResponse.getContent());
 
 
-        } else {
-            emailDTOList = getListOfEmails(accessToken);
         }
         modelMap.put("listMails", emailDTOList);
         LOGGER.info("[RENDER SERVICE] - done!");

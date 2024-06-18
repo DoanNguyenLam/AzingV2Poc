@@ -10,11 +10,13 @@ public class GmailDetail {
     private String threadId;
     private String snippet;
     private Payload payload;
+    private String[] labelIds;
 
     @Data
     public static class Payload{
         private List<Headers> headers;
         private List<Parts> parts;
+        private Body body;
     }
 
     @Data
