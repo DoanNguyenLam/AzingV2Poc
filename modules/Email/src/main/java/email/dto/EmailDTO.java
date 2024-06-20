@@ -1,7 +1,14 @@
 package email.dto;
 
+import email.dto.GmailDTO.GmailDetail;
+import email.utils.Utils;
 import lombok.Getter;
 import lombok.Setter;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
 
 @Getter
 @Setter
@@ -15,4 +22,6 @@ public class EmailDTO {
     private String date;
     private String bodyPlainText;
     private String bodyHtml;
+    private List<LabelDTO> labels;
+
 }

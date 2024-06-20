@@ -1,19 +1,17 @@
 document.addEventListener("DOMContentLoaded", (event) => {
-  const emailCards = document.querySelectorAll(".card.email-card");
+  const emailCards = document.querySelectorAll(".list-mails .card.email-card");
   emailCards.forEach(async function (card) {
     card.addEventListener("click", async function () {
-      const subject = card.querySelector(".card-title").innerText;
-      const data = card.querySelector(".card-text").innerText;
-      const date = card.querySelector(".date p").innerText;
-
-      const emailData = {
-        subject,
-        data,
-        date,
-      };
-      await handleClick(card, emailData);
+      await handleClick(card);
     });
   });
+
+  const listLabels = document.querySelectorAll(".ai-tool .label-items .label-form")
+  listLabels.forEach(async (label) => {
+    label.addEventListener("click", async function() {
+      await updateLabel(label)
+    })
+  })
 
   const spinnerElement = () => {
     const spinner = document.createElement("div");
@@ -32,14 +30,11 @@ document.addEventListener("DOMContentLoaded", (event) => {
         ".card .card-body .body.mt-3"
     );
     cardBodys.forEach((item) => {
-      console.log(item);
       item.appendChild(spinnerElement())
     });
-    console.log(spinnerElement())
   };
 
   const removeElement = () => {
-    console.log("Remove element")
     const noSelecteds = document.querySelectorAll(".no-selected");
 
     const currentBody = document.querySelector(
@@ -70,9 +65,11 @@ document.addEventListener("DOMContentLoaded", (event) => {
     card.submit()
   }
 
-  const handleClick = async (card, data) => {
-    const actionURL = window.submitDataURL;
+  const updateLabel = async (label) => {
+    label.submit()
+  }
 
+  const handleClick = async (card) => {
     // Active class
     emailCards.forEach(function (card) {
       card.classList.remove("active");

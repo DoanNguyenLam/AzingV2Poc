@@ -42,7 +42,6 @@
                         <div class="card-body">
 
                             <div class="title d-flex align-items-center gap-2 pb-2">
-                                <i class="fa-solid fa-envelope"></i>
                                 <h5 class="card-title mb-0">Original email</h5>
                             </div>
                             <div class="body mt-3">
@@ -65,11 +64,57 @@
             </div>
             <div class="col-4">
                 <div class="ai-tool">
+                    <div class="email-labels">
+                        <div class="card email-card w-100 mb-3 active">
+                            <div class="card-body">
+                                <div class="title d-flex align-items-center gap-2 pb-2">
+                                   <h5 class="card-title mb-0">Email Tags</h5>
+                                </div>
+                                <div class="body mt-3">
+                                    <c:choose>
+                                        <c:when test="${not empty labels}">
+                                            <div class="label-items">
+                                                <div> labelsAI: ${labelsAI}</div>
+                                                <c:forEach items="${labels}" var="label">
+                                                    <portlet:actionURL var="updateLabel">
+                                                        <portlet:param name="action" value="updateLabel"/>
+                                                        <portlet:param name="thread-id" value="${threadId}"/>
+                                                        <portlet:param name="id" value="${id}"/>
+                                                        <portlet:param name="labelName" value="${label.name}"/>
+<!--                                                        <portlet:param name="isAIGenerate" value="${label.isAIGenerate}"/>-->
+                                                    </portlet:actionURL>
+                                                    <form:form class="label-form" action="${updateLabel}" method="post"ccccfcv>
+                                                        <c:choose>
+                                                            <c:when test="${not empty label.color}">
+                                                                <span class="label-color" style="color: ${label.color.textColor}; background-color: ${label.color.backgroundColor};">
+                                                                    ${label.name}
+                                                                </span>
+                                                            </c:when>
+                                                            <c:otherwise>
+                                                                <span class="label-color">
+                                                                    ${label.name}
+                                                                </span>
+                                                            </c:otherwise>
+                                                        </c:choose>
+                                                    </form:form>
+
+                                                </c:forEach>
+                                            </div>
+                                        </c:when>
+                                        <c:otherwise>
+                                            <div class="no-selected">
+                                                Please select an email to view label.
+                                            </div>
+                                        </c:otherwise>
+                                    </c:choose>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                     <div class="email-summary">
                         <div class="card email-card w-100 mb-3 active">
                             <div class="card-body">
                                 <div class="title d-flex align-items-center gap-2 pb-2">
-                                    <i class="fa-solid fa-wand-magic-sparkles"></i>
                                     <h5 class="card-title mb-0">Email summary</h5>
                                 </div>
                                 <div class="body mt-3">
@@ -94,7 +139,6 @@
                             <div class="card-body">
                                 <div class="title">
                                     <div class="title d-flex align-items-center gap-2 pb-2">
-                                        <i class="fa-solid fa-share"></i>
                                         <h5 class="card-title mb-0">Reply suggestion</h5>
                                     </div>
                                 </div>

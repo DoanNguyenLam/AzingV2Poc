@@ -3,8 +3,9 @@ package email.controller;
 import com.liferay.portletmvc4spring.bind.annotation.ActionMapping;
 import com.liferay.portletmvc4spring.bind.annotation.RenderMapping;
 import email.dto.EmailDTO;
+import email.dto.LabelDTO;
 import email.dto.User;
-import email.services.EmailServiceImpl;
+import email.services.EmailService;
 import email.utils.EmailPortletConfigs;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -14,10 +15,12 @@ import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.bind.support.SessionStatus;
 
+import javax.inject.Singleton;
 import javax.portlet.ActionResponse;
 import javax.portlet.MutableRenderParameters;
 import javax.portlet.PortletRequest;
 import javax.portlet.PortletSession;
+import java.util.Collections;
 import java.util.concurrent.ExecutionException;
 
 /**
@@ -28,7 +31,7 @@ import java.util.concurrent.ExecutionException;
 public class EmailController {
 
 	@Autowired
-	private EmailServiceImpl emailService;
+	private EmailService emailService;
 
 	@ModelAttribute("user")
 	public User getUserModelAttribute() {
@@ -64,6 +67,53 @@ public class EmailController {
 
 		mutableRenderParameters.setValue("javax.portlet.action", "success");
 		sessionStatus.setComplete();
+	}
+
+	@ActionMapping(params = "action=updateLabel")
+	public void updateLabel(@RequestParam("id") String id,
+							@RequestParam("thread-id") String threadId,
+							@RequestParam("labelName") String labelName,
+							@RequestParam("isAIGenerate") boolean isAIGenerate,
+							ModelMap modelMap,
+							ActionResponse actionResponse,
+						  SessionStatus sessionStatus, PortletSession session) {
+		_logger.info("[UPDATE LABEL] - id: [{}] - threadId: [{}] - labelName: [{}]", id, threadId, labelName);
+
+		MutableRenderParameters mutableRenderParameters =
+				actionResponse.getRenderParameters();
+
+		session.setAttribute("id", id);
+		session.setAttribute("threadId", threadId);
+		session.setAttribute("labelName", labelName);
+		session.setAttribute("isAIGenerate", isAIGenerate);
+
+		mutableRenderParameters.setValue("javax.portlet.action", "updateLabelRender");
+		sessionStatus.setComplete();
+	}
+
+	@RenderMapping(params = "javax.portlet.action=updateLabelRender")
+	public String updateLabelView(ModelMap modelMap, PortletRequest portletRequest) throws ExecutionException, InterruptedException {
+		_logger.info("Update label view called");
+
+		PortletSession session = portletRequest.getPortletSession();
+		String emailId = (String) session.getAttribute("id", PortletSession.PORTLET_SCOPE);
+		String threadId = (String) session.getAttribute("threadId", PortletSession.PORTLET_SCOPE);
+		String labelName = (String) session.getAttribute("labelName", PortletSession.PORTLET_SCOPE);
+		boolean isAIGenerate = (boolean) session.getAttribute("isAIGenerate", PortletSession.PORTLET_SCOPE);
+
+		_logger.info("[UPDATE LABEL VIEW] - Email ID: {}, Thread ID: {}, Label name: {}, AI generate: {}", emailId, threadId, labelName, isAIGenerate);
+
+		EmailDTO currentEmail = new EmailDTO();
+		currentEmail.setId(emailId);
+		currentEmail.setThreadId(threadId);
+		currentEmail.setLabels(Collections.singletonList(new LabelDTO()));
+
+		EmailPortletConfigs emailPortletConfigs = new EmailPortletConfigs();
+		emailPortletConfigs.updateProps(portletRequest);
+
+		String view = emailService.renderService(modelMap, portletRequest, emailPortletConfigs, currentEmail);
+
+		return view;
 	}
 
 	@RenderMapping(params = "javax.portlet.action=success")
