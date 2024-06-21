@@ -13,7 +13,9 @@ import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 
 @Service
 public class AIService {
@@ -141,4 +143,13 @@ public class AIService {
         }
     }
 
+    public List<AILabel> generateLabelFromAI(EmailPortletConfigs emailPortletConfigs, String mailBody, List<String> currentLabels) {
+        List<AILabel> aiLabelList = new ArrayList<>();
+        for (int i = 0; i < 5; i++) {
+            AILabel aiLabel = new AILabel();
+            aiLabel.setLabelName("AI Label " + i);
+            aiLabelList.add(aiLabel);
+        }
+        return aiLabelList;
+    }
 }

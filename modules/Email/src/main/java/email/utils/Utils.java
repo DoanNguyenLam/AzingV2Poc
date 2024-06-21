@@ -20,22 +20,32 @@ public class Utils {
     private static final Logger _logger = LoggerFactory.getLogger(Utils.class);
 
     public static <T> T callApi(String url, HttpMethod httpMethod, HttpEntity<String> entity, Class<T> returnType) {
+        _logger.info("[CALL API] - url: {}", url);
+        _logger.info("[CALL API] - method: {}", httpMethod);
+        _logger.info("[CALL API] - entity: {}", entity);
+        _logger.info("[CALL API] - returnType: {}", returnType.getName());
+
         try {
             ResponseEntity<T> response = restTemplate.exchange(url, httpMethod, entity, returnType);
             if (response.getStatusCode() != HttpStatus.OK) {
-                _logger.warn("Unexpected response status: {}", response.getStatusCode());
+                _logger.warn("[CALL API] - Unexpected response status: {}", response.getStatusCode());
                 return null;
             }
 
+            _logger.info("[CALL API] - success");
+            _logger.info("[CALL API] - respone status: {}", response.getStatusCode());
+            _logger.info("[CALL API] - respone header: {}", response.getHeaders());
+            _logger.info("[CALL API] - respone body: {}", response.getBody());
+
             return response.getBody();
         } catch (HttpClientErrorException e) {
-            _logger.error("Client error when calling API: {}, Status code: {}, Response body: {}", url, e.getStatusCode(), e.getResponseBodyAsString());
+            _logger.error("[CALL API] - Client error when calling API: {}, Status code: {}, Response body: {}", url, e.getStatusCode(), e.getResponseBodyAsString());
         } catch (HttpServerErrorException e) {
-            _logger.error("Server error when calling API: {}, Status code: {}, Response body: {}", url, e.getStatusCode(), e.getResponseBodyAsString());
+            _logger.error("[CALL API] - Server error when calling API: {}, Status code: {}, Response body: {}", url, e.getStatusCode(), e.getResponseBodyAsString());
         } catch (RestClientException e) {
-            _logger.error("Error occurred when calling API: {}", url, e);
+            _logger.error("[CALL API] - Error occurred when calling API: {}", url, e);
         } catch (Exception e) {
-            _logger.error("Unexpected error occurred when calling API: {}", url, e);
+            _logger.error("[CALL API] - Unexpected error occurred when calling API: {}", url, e);
         }
         return null;
     }

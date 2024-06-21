@@ -6,7 +6,7 @@ document.addEventListener("DOMContentLoaded", (event) => {
     });
   });
 
-  const listLabels = document.querySelectorAll(".ai-tool .label-items .label-form")
+  const listLabels = document.querySelectorAll(".ai-tool .email-labels .label-items .label-form")
   listLabels.forEach(async (label) => {
     label.addEventListener("click", async function() {
       await updateLabel(label)
@@ -48,6 +48,8 @@ document.addEventListener("DOMContentLoaded", (event) => {
         ".reply-suggestion .card .card-body .body .reply-suggestion"
     );
 
+    const currentTags = document.querySelector(".email-labels .card .card-body .body .tag")
+
     const spinners = document.querySelectorAll(".spinner-wrapper");
     spinners.forEach((item) => {
       item.remove();
@@ -56,9 +58,11 @@ document.addEventListener("DOMContentLoaded", (event) => {
     if (noSelecteds && noSelecteds.length > 0) {
       noSelecteds.forEach((item) => item.remove());
     }
+
     if (currentBody) currentBody.remove();
     if (currentSummary) currentSummary.remove();
     if (currentReplySuggestion) currentReplySuggestion.remove();
+    if (currentTags) currentTags.remove();
   };
 
   const fetchData = async (card) => {

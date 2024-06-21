@@ -10,6 +10,7 @@ import org.springframework.ui.ModelMap;
 
 import javax.portlet.PortletRequest;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
@@ -26,11 +27,12 @@ public class EmailService {
 
     private final Logger LOGGER = LoggerFactory.getLogger(this.getClass());
 
-    public String renderService(ModelMap modelMap, PortletRequest portletRequest, EmailPortletConfigs emailPortletConfigs, EmailDTO currentEmail) throws InterruptedException, ExecutionException {
+    public String renderService(ModelMap modelMap, EmailPortletConfigs emailPortletConfigs, EmailDTO currentEmail) {
         LOGGER.info("[RENDER SERVICE] - running ...");
 
         String accessToken = emailPortletConfigs.getGgAccessToken();
         List<EmailDTO> emailDTOList = gmailService.getListMail(accessToken);
+        modelMap.put("listMails", emailDTOList);
 
         if (currentEmail != null) {
             LOGGER.info("[RENDER SERVICE] - id = {}, thread id = {}", currentEmail.getId(), currentEmail.getThreadId());
@@ -39,24 +41,19 @@ public class EmailService {
                     .stream()
                     .filter(emailDTO1 -> emailDTO1.getId().equals(currentEmail.getId()))
                     .findFirst();
-            if (emailDTOOptional.isPresent()) {
-                EmailDTO emailDTO = emailDTOOptional.get();
-                List<LabelDTO> listLabel = emailDTO.getLabels();
+            if (!emailDTOOptional.isPresent()) return "mails";
 
-                // TODO: call service get AI generate
-                List<AILabel> aiLabelList = new ArrayList<>();
-                AILabel aiLabel = new AILabel();
-                aiLabel.setLabelName("AI_LABEL");
-                aiLabelList.add(aiLabel);
+            EmailDTO emailDTO = emailDTOOptional.get();
+            List<LabelDTO> listLabel = emailDTO.getLabels();
 
-                modelMap.put("originalEmail", emailDTO.getBodyHtml());
-                modelMap.put("id", emailDTO.getId());
-                modelMap.put("threadId", emailDTO.getThreadId());
-                modelMap.put("labels", listLabel);
-                modelMap.put("labelsAI", aiLabelList);
-            }else {
-                return "Mail empty";
-            }
+            // TODO: call service get AI generate
+            List<AILabel> aiLabelList = aiService.generateLabelFromAI(emailPortletConfigs, "", new ArrayList<>());
+
+            modelMap.put("originalEmail", emailDTO.getBodyHtml());
+            modelMap.put("id", emailDTO.getId());
+            modelMap.put("threadId", emailDTO.getThreadId());
+            modelMap.put("labelsGG", listLabel);
+            modelMap.put("labelsAI", aiLabelList);
 
 //            String bodyText;
 //            boolean isThread ;
@@ -86,11 +83,39 @@ public class EmailService {
 //            }
 //            modelMap.put("summary", summaryResponse.getContent());
 //            modelMap.put("suggestion", suggestionResponse.getContent());
-
-
         }
-        modelMap.put("listMails", emailDTOList);
         LOGGER.info("[RENDER SERVICE] - done!");
         return "mails";
+    }
+
+    public boolean addLabel(EmailPortletConfigs emailPortletConfigs, String messageId, UpdateLabelReqDTO request) {
+        LOGGER.info("[ADD LABEL] - running ...");
+        String accessToken = emailPortletConfigs.getGgAccessToken();
+        try {
+            LabelDTO labelDTO = gmailService.createNewLabel(accessToken, request.getAddLabelIds().get(0));
+            LOGGER.info("[ADD LABEL] - add label google done! - {}", labelDTO);
+            request.setAddLabelIds(Collections.singletonList(labelDTO.getId()));
+            gmailService.updateLabelEmail(accessToken, messageId, request);
+            LOGGER.info("[ADD LABEL] - done!");
+            return true;
+        } catch (Exception e) {
+            e.printStackTrace();
+            LOGGER.error("[ADD LABEL] - error!");
+            return false;
+        }
+    }
+
+    public boolean removeLabel(EmailPortletConfigs emailPortletConfigs, String messageId, UpdateLabelReqDTO request) {
+        LOGGER.info("[REMOVE LABEL] - running ...");
+        String accessToken = emailPortletConfigs.getGgAccessToken();
+        try {
+            gmailService.updateLabelEmail(accessToken, messageId, request);
+            LOGGER.info("[REMOVE LABEL] - done!");
+            return true;
+        } catch (Exception e) {
+            e.printStackTrace();
+            LOGGER.error("[REMOVE LABEL] - error!");
+            return false;
+        }
     }
 }

@@ -60,7 +60,7 @@ public class GmailService {
     }
 
     public String getUserId(String accessToken) {
-        LOGGER.info("Get Gmail userId");
+        LOGGER.info("[GET USER] - Get Gmail userId");
 
         String url = "https://www.googleapis.com/oauth2/v1/userinfo";
         RestTemplate restTemplate = new RestTemplate();
@@ -87,7 +87,7 @@ public class GmailService {
     }
 
     public List<EmailDTO> getListMail(String accessToken) {
-        LOGGER.info("Get gmail list ID by access token");
+        LOGGER.info("[GET LIST MAIL] - Get gmail list ID by access token");
 
         String userId = this.getUserId(accessToken);
         if (userId == null || userId.isEmpty()) {
@@ -112,13 +112,20 @@ public class GmailService {
 
         List<GmailMessageIds.GmailMessage> listMailIds = response.getBody().getGmailMessageList().subList(0, 9);
         List<LabelDTO> labelDTOS = getListLabels(accessToken);
-        LOGGER.info("[Get List Mail] - list labels {}", labelDTOS);
+        LOGGER.info("[GET LIST MAIL] - get list labels {}", labelDTOS.stream().map(LabelDTO::getName).collect(Collectors.toList()));
 
         ExecutorService executorService = Executors.newFixedThreadPool(10);
 
         // Use CompletableFuture to call getListMailDetail concurrently
         List<CompletableFuture<EmailDTO>> futures = listMailIds.stream()
-                .map(gmailMessage -> CompletableFuture.supplyAsync(() -> getListMailDetail(accessToken, userId, gmailMessage, labelDTOS), executorService))
+                .map(gmailMessage ->
+                        CompletableFuture.supplyAsync(() ->
+                                getListMailDetail(
+                                        accessToken,
+                                        userId,
+                                        gmailMessage,
+                                        labelDTOS),
+                                executorService))
                 .collect(Collectors.toList());
 
         // Wait for all futures to complete and collect the results
@@ -193,7 +200,7 @@ public class GmailService {
     }
 
     public List<LabelDTO> getListLabels(String accessToken) {
-        LOGGER.info("[LABEL] - get list labels");
+        LOGGER.info("[GET LABEL] - get list labels");
 
         String userId = this.getUserId(accessToken);
         if (userId == null || userId.isEmpty()) {
@@ -209,7 +216,7 @@ public class GmailService {
         LabelResponseDTO response = Utils.callApi(url, HttpMethod.GET, entity, LabelResponseDTO.class);
 
         if (response.getLabels() == null || response.getLabels().isEmpty()) {
-            LOGGER.warn("[LABEL] - list label not founds");
+            LOGGER.warn("[GET LABEL] - list label not founds");
             return new ArrayList<>();
         }
 
@@ -233,40 +240,32 @@ public class GmailService {
             return;
         }
 
-        this.updateNewLabels(accessToken, newLabels);
+//        this.createNewLabel(accessToken, newLabels);
     }
 
-    public void updateNewLabels(String accessToken, List<String> labels){
-        LOGGER.info("Update new labels [{}]", labels);
+    public LabelDTO createNewLabel(String accessToken, String label){
+        LOGGER.info("[CREATE LABEL] - new labels [{}]", label);
 
         String userId = this.getUserId(accessToken);
         if (userId == null || userId.isEmpty()) {
-            return;
+            return null;
         }
 
         String url = "https://gmail.googleapis.com/gmail/v1/users/"+ userId + "/labels";
         HttpHeaders headers = new HttpHeaders();
         headers.set("Authorization", "Bearer " + accessToken);
         headers.set("User-Agent", "Application");
-        RestTemplate restTemplate = new RestTemplate();
 
-        ExecutorService executorService = Executors.newFixedThreadPool(4);
+        String jsonBody = "{ \"name\": \"" + label + "\" }";
+        HttpEntity<String> entity = new HttpEntity<>(jsonBody, headers);
+        LabelDTO response = Utils.callApi(url, HttpMethod.POST, entity, LabelDTO.class);
+        LOGGER.info("[CREATE LABEL] - success");
 
-        CompletableFuture.allOf(labels.stream().map(label -> CompletableFuture.supplyAsync(() -> {
-            try {
-                String jsonBody = "{ \"name\": \"" + label + "\" }";
-                HttpEntity<String> entity = new HttpEntity<>(jsonBody, headers);
-                LabelDTO response = Utils.callApi(url, HttpMethod.POST, entity, LabelDTO.class);
-                return response;
-            } catch (Exception e) {
-                throw new RuntimeException(e);
-            }
-        })).toArray(CompletableFuture[]::new)).join();
-        executorService.shutdown();
+        return response;
     }
 
-    public void updateLabelEmail(String accessToken, String messageId,List<String> listLabelId) {
-        LOGGER.info("Update Label Email {}", listLabelId);
+    public void updateLabelEmail(String accessToken, String messageId, UpdateLabelReqDTO req) {
+        LOGGER.info("[UPDATE LABEL EMAIL] - Update Label Email Request: {}", req);
 
         String userId = this.getUserId(accessToken);
         if (userId == null || userId.isEmpty()) {
@@ -279,7 +278,6 @@ public class GmailService {
         headers.set("User-Agent", "Application");
 
         ObjectMapper mapper = new ObjectMapper();
-        UpdateLabelReqDTO req = new UpdateLabelReqDTO(listLabelId, Collections.emptyList());
 
         String requestBody;
         try {
@@ -292,6 +290,6 @@ public class GmailService {
         HttpEntity<String> entity = new HttpEntity<>(requestBody, headers);
 
         UpdateLabelResDTO response = Utils.callApi(url, HttpMethod.POST, entity, UpdateLabelResDTO.class);
-        LOGGER.warn("[UPDATE LABEL EMAIL - response: {}", response.getLabelIds());
+        LOGGER.info("[UPDATE LABEL EMAIL] - response: {}", response.getLabelIds());
     }
 }

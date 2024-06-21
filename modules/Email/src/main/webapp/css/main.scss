@@ -110,32 +110,42 @@ body {
 
 		.email-labels {
 			.body {
-				.label-items {
-					display: flex;
-					gap: 10px;
-					flex-wrap: wrap;
-					.label-color {
-
-
-						border-radius: 5px;
-
-
-						font-size: 14px;
-					}
-					.label-form {
-						cursor: pointer;
-						.label-color {
-							background-color: teal;
-							color: #fff;
-							border-radius: 5px;
-							font-weight: bold;
-							line-height: 26px;
-							padding: 5px 10px;
-							position: relative;
-							-webkit-transition: color 0.2s;
+				.gg,
+				.ai {
+					margin: 10px 0;
+					.label-items {
+						display: flex;
+						gap: 10px;
+						flex-wrap: wrap;
+						.label-form {
+							cursor: pointer;
+							.label-color {
+								background-color: teal;
+								color: #fff;
+								border-radius: 5px;
+								font-weight: bold;
+								line-height: 26px;
+								padding: 5px 10px;
+								position: relative;
+								-webkit-transition: color 0.2s;
+							}
 						}
 					}
 				}
+
+				.ai {
+					.title {
+						background: linear-gradient(to right, #30CFD0 0%, #330867 100%);
+						background-clip: border-box;
+						background-clip: text;
+						color: transparent;
+					}
+					.label-color {
+						background-color: #0093E9;
+						background-image: linear-gradient(160deg, #0093E9 0%, #80D0C7 100%);
+					}
+				}
+
 			}
 		}
 	}

@@ -42,7 +42,7 @@
                         <div class="card-body">
 
                             <div class="title d-flex align-items-center gap-2 pb-2">
-                                <h5 class="card-title mb-0">Original email</h5>
+                                <h4 class="card-title mb-0">Original email</h4>
                             </div>
                             <div class="body mt-3">
                                 <c:choose>
@@ -68,45 +68,68 @@
                         <div class="card email-card w-100 mb-3 active">
                             <div class="card-body">
                                 <div class="title d-flex align-items-center gap-2 pb-2">
-                                   <h5 class="card-title mb-0">Email Tags</h5>
+                                   <h4 class="card-title mb-0">Email Tags</h4>
                                 </div>
                                 <div class="body mt-3">
-                                    <c:choose>
-                                        <c:when test="${not empty labels}">
-                                            <div class="label-items">
-                                                <div> labelsAI: ${labelsAI}</div>
-                                                <c:forEach items="${labels}" var="label">
-                                                    <portlet:actionURL var="updateLabel">
-                                                        <portlet:param name="action" value="updateLabel"/>
-                                                        <portlet:param name="thread-id" value="${threadId}"/>
-                                                        <portlet:param name="id" value="${id}"/>
-                                                        <portlet:param name="labelName" value="${label.name}"/>
-<!--                                                        <portlet:param name="isAIGenerate" value="${label.isAIGenerate}"/>-->
-                                                    </portlet:actionURL>
-                                                    <form:form class="label-form" action="${updateLabel}" method="post"ccccfcv>
-                                                        <c:choose>
-                                                            <c:when test="${not empty label.color}">
+                                    <div class="tag">
+                                        <c:choose>
+                                            <c:when test="${empty labelsGG and empty labelsAI}">
+                                                <div class="no-selected">
+                                                    Please select an email to view label.
+                                                </div>
+                                            </c:when>
+                                            <c:otherwise>
+                                                <div class="gg">
+                                                    <h6> Google: </h6>
+                                                    <div class="label-items">
+                                                        <c:forEach items="${labelsGG}" var="label">
+                                                            <portlet:actionURL var="removeLabel">
+                                                                <portlet:param name="action" value="removeLabel"/>
+                                                                <portlet:param name="thread-id" value="${threadId}"/>
+                                                                <portlet:param name="id" value="${id}"/>
+                                                                <portlet:param name="labelId" value="${label.id}"/>
+                                                            </portlet:actionURL>
+                                                            <form:form class="label-form" action="${removeLabel}" method="post">
+                                                                <c:choose>
+                                                                    <c:when test="${not empty label.color}">
                                                                 <span class="label-color" style="color: ${label.color.textColor}; background-color: ${label.color.backgroundColor};">
                                                                     ${label.name}
                                                                 </span>
-                                                            </c:when>
-                                                            <c:otherwise>
+                                                                    </c:when>
+                                                                    <c:otherwise>
                                                                 <span class="label-color">
                                                                     ${label.name}
                                                                 </span>
-                                                            </c:otherwise>
-                                                        </c:choose>
-                                                    </form:form>
+                                                                    </c:otherwise>
+                                                                </c:choose>
+                                                            </form:form>
 
-                                                </c:forEach>
-                                            </div>
-                                        </c:when>
-                                        <c:otherwise>
-                                            <div class="no-selected">
-                                                Please select an email to view label.
-                                            </div>
-                                        </c:otherwise>
-                                    </c:choose>
+                                                        </c:forEach>
+                                                    </div>
+                                                </div>
+                                                <div class="ai">
+                                                    <h6> AI generator: </h6>
+                                                    <div class="label-items">
+                                                        <c:forEach items="${labelsAI}" var="labelAI">
+                                                            <portlet:actionURL var="addLabel">
+                                                                <portlet:param name="action" value="addLabel"/>
+                                                                <portlet:param name="thread-id" value="${threadId}"/>
+                                                                <portlet:param name="id" value="${id}"/>
+                                                                <portlet:param name="labelName" value="${labelAI.labelName}"/>
+                                                                <!--                                                        <portlet:param name="isAIGenerate" value="${label.isAIGenerate}"/>-->
+                                                            </portlet:actionURL>
+                                                            <form:form class="label-form" action="${addLabel}" method="post">
+                                                          <span class="label-color">
+                                                                ${labelAI.labelName}
+                                                            </span>
+                                                            </form:form>
+
+                                                        </c:forEach>
+                                                    </div>
+                                                </div>
+                                            </c:otherwise>
+                                        </c:choose>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -115,7 +138,7 @@
                         <div class="card email-card w-100 mb-3 active">
                             <div class="card-body">
                                 <div class="title d-flex align-items-center gap-2 pb-2">
-                                    <h5 class="card-title mb-0">Email summary</h5>
+                                    <h4 class="card-title mb-0">Email summary</h4>
                                 </div>
                                 <div class="body mt-3">
                                 <c:choose>
@@ -139,7 +162,7 @@
                             <div class="card-body">
                                 <div class="title">
                                     <div class="title d-flex align-items-center gap-2 pb-2">
-                                        <h5 class="card-title mb-0">Reply suggestion</h5>
+                                        <h4 class="card-title mb-0">Reply suggestion</h4>
                                     </div>
                                 </div>
                                 <div class="body mt-3">
