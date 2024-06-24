@@ -52,6 +52,14 @@
             <aui:input label="" type="password" name="ggAccessToken" cssClass="w-100" value="<%=ggAccessToken%>"/>
         </aui:fieldset>
 
+        <%-- GG Access token key --%>
+        <label class="aui-field-label" for="<portlet:namespace />script">
+            <spring:message code="gg-refresh-token"></spring:message>
+        </label>
+        <aui:fieldset>
+            <aui:input label="" type="password" name="ggRefreshToken" cssClass="w-100" value="<%=ggRefressToken%>"/>
+        </aui:fieldset>
+
         <%-- Claude API KEY --%>
         <label class="aui-field-label" for="<portlet:namespace />script">
             <spring:message code="claude-api-key"></spring:message>
