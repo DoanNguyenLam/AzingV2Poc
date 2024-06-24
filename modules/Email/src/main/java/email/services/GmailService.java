@@ -3,6 +3,7 @@ package email.services;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import email.dto.*;
+import email.dto.GmailDTO.GmailAccessTokenDTO;
 import email.dto.GmailDTO.GmailDetail;
 import email.dto.GmailDTO.GmailMessageIds;
 import email.dto.GmailDTO.GmailThreadDetail;
@@ -12,6 +13,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -27,6 +30,37 @@ public class GmailService {
 
     public String gmailOauthUrl(){
         return Constant.OAUTH_URL + "?" + "response_type=code" + "&client_id=" + Constant.CLIENT_ID + "&scope=" + Constant.SCOPES + "&redirect_uri=" + Constant.REDIRECT_URI;
+    }
+
+    private static final String REFRESH_TOKEN_URL = "https://www.googleapis.com/oauth2/v4/token";
+
+    public String getNewAccessToken(String clientId, String clientSecret, String refreshToken){
+        LOGGER.info("Get new access token");
+        try {
+            RestTemplate restTemplate = new RestTemplate();
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
+
+            MultiValueMap<String, String> requestBody = new LinkedMultiValueMap<>();
+            requestBody.add("client_id", clientId);
+            requestBody.add("client_secret", clientSecret);
+            requestBody.add("refresh_token", refreshToken);
+            requestBody.add("grant_type", "refresh_token");
+
+            HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<>(requestBody, headers);
+
+            // Make the HTTP POST request
+            ResponseEntity<GmailAccessTokenDTO> responseEntity = restTemplate.postForEntity(REFRESH_TOKEN_URL, request, GmailAccessTokenDTO.class);
+
+            if (!responseEntity.getStatusCode().is2xxSuccessful() || responseEntity.getBody() == null) {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
+            }
+
+            return responseEntity.getBody().getAccessToken();
+        }catch (Exception e){
+            LOGGER.info("Get new access token exception : ", e);
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
+        }
     }
 
     public String getAccessToken(String authorizationCode) throws Exception {

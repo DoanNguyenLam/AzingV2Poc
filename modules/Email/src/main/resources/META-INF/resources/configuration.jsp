@@ -29,27 +29,35 @@
         />
 
         <%-- GG Client key --%>
-<%--        <label class="aui-field-label" for="<portlet:namespace />script">--%>
-<%--            <spring:message code="gg-client-key"></spring:message>--%>
-<%--        </label>--%>
-<%--        <aui:fieldset>--%>
-<%--            <aui:input label="" name="googleClientKey" cssClass="w-100" value="<%=ggClientKey%>"/>--%>
-<%--        </aui:fieldset>--%>
+        <label class="aui-field-label" for="<portlet:namespace />script">
+            <spring:message code="gg-client-key"></spring:message>
+        </label>
+        <aui:fieldset>
+            <aui:input label="" type="password" name="googleClientKey" cssClass="w-100" value="<%=ggClientKey%>"/>
+        </aui:fieldset>
 
-<%--        &lt;%&ndash; GG Secret key &ndash;%&gt;--%>
+        <%-- GG Secret key --%>
+        <label class="aui-field-label" for="<portlet:namespace />script">
+            <spring:message code="gg-secret-key"></spring:message>
+        </label>
+        <aui:fieldset>
+            <aui:input label="" type="password" name="googleSecretKey" cssClass="w-100" value="<%=ggSecretKey%>"/>
+        </aui:fieldset>
+
+        <%-- GG Access token key --%>
 <%--        <label class="aui-field-label" for="<portlet:namespace />script">--%>
-<%--            <spring:message code="gg-secret-key"></spring:message>--%>
+<%--            <spring:message code="gg-access-token"></spring:message>--%>
 <%--        </label>--%>
 <%--        <aui:fieldset>--%>
-<%--            <aui:input label="" type="password" name="googleSecretKey" cssClass="w-100" value="<%=ggSecretKey%>"/>--%>
+<%--            <aui:input label="" type="password" name="ggAccessToken" cssClass="w-100" value="<%=ggAccessToken%>"/>--%>
 <%--        </aui:fieldset>--%>
 
         <%-- GG Access token key --%>
         <label class="aui-field-label" for="<portlet:namespace />script">
-            <spring:message code="gg-access-token"></spring:message>
+            <spring:message code="gg-refresh-token"></spring:message>
         </label>
         <aui:fieldset>
-            <aui:input label="" type="password" name="ggAccessToken" cssClass="w-100" value="<%=ggAccessToken%>"/>
+            <aui:input label="" type="password" name="ggRefreshToken" cssClass="w-100" value="<%=ggRefressToken%>"/>
         </aui:fieldset>
 
         <%-- GG Access token key --%>
