@@ -15,7 +15,6 @@ import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
-import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -34,7 +33,7 @@ public class GmailService {
     }
 
     private static final String REFRESH_TOKEN_URL = "https://www.googleapis.com/oauth2/v4/token";
-    
+
     public String getNewAccessToken(String clientId, String clientSecret, String refreshToken){
         LOGGER.info("Get new access token");
         try {

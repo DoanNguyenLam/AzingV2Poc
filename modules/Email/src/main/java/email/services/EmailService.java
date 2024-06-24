@@ -8,7 +8,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.ui.ModelMap;
 
-import javax.portlet.PortletRequest;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -30,7 +29,9 @@ public class EmailService {
     public String renderService(ModelMap modelMap, EmailPortletConfigs emailPortletConfigs, EmailDTO currentEmail) throws ExecutionException, InterruptedException {
         LOGGER.info("[RENDER SERVICE] - running ...");
 
-        String accessToken = emailPortletConfigs.getGgAccessToken();
+        String accessToken = gmailService.getNewAccessToken(emailPortletConfigs.getGoogleClientKey(), emailPortletConfigs.getGoggleSecretKey(), emailPortletConfigs.getGgRefreshToken());
+        emailPortletConfigs.setGgAccessToken(accessToken);
+
         List<EmailDTO> emailDTOList = gmailService.getListMail(accessToken);
         modelMap.put("listMails", emailDTOList);
 
