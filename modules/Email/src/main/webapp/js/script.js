@@ -1,19 +1,17 @@
 document.addEventListener("DOMContentLoaded", (event) => {
-  const emailCards = document.querySelectorAll(".card.email-card");
+  const emailCards = document.querySelectorAll(".list-mails .card.email-card");
   emailCards.forEach(async function (card) {
     card.addEventListener("click", async function () {
-      const subject = card.querySelector(".card-title").innerText;
-      const data = card.querySelector(".card-text").innerText;
-      const date = card.querySelector(".date p").innerText;
-
-      const emailData = {
-        subject,
-        data,
-        date,
-      };
-      await handleClick(card, emailData);
+      await handleClick(card);
     });
   });
+
+  const listLabels = document.querySelectorAll(".ai-tool .email-labels .label-items .label-form")
+  listLabels.forEach(async (label) => {
+    label.addEventListener("click", async function() {
+      await updateLabel(label)
+    })
+  })
 
   const spinnerElement = () => {
     const spinner = document.createElement("div");
@@ -32,14 +30,11 @@ document.addEventListener("DOMContentLoaded", (event) => {
         ".card .card-body .body.mt-3"
     );
     cardBodys.forEach((item) => {
-      console.log(item);
       item.appendChild(spinnerElement())
     });
-    console.log(spinnerElement())
   };
 
   const removeElement = () => {
-    console.log("Remove element")
     const noSelecteds = document.querySelectorAll(".no-selected");
 
     const currentBody = document.querySelector(
@@ -53,6 +48,8 @@ document.addEventListener("DOMContentLoaded", (event) => {
         ".reply-suggestion .card .card-body .body .reply-suggestion"
     );
 
+    const currentTags = document.querySelector(".email-labels .card .card-body .body .tag")
+
     const spinners = document.querySelectorAll(".spinner-wrapper");
     spinners.forEach((item) => {
       item.remove();
@@ -61,18 +58,22 @@ document.addEventListener("DOMContentLoaded", (event) => {
     if (noSelecteds && noSelecteds.length > 0) {
       noSelecteds.forEach((item) => item.remove());
     }
+
     if (currentBody) currentBody.remove();
     if (currentSummary) currentSummary.remove();
     if (currentReplySuggestion) currentReplySuggestion.remove();
+    if (currentTags) currentTags.remove();
   };
 
   const fetchData = async (card) => {
     card.submit()
   }
 
-  const handleClick = async (card, data) => {
-    const actionURL = window.submitDataURL;
+  const updateLabel = async (label) => {
+    label.submit()
+  }
 
+  const handleClick = async (card) => {
     // Active class
     emailCards.forEach(function (card) {
       card.classList.remove("active");
