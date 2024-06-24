@@ -8,6 +8,7 @@ public class EmailConfigKeys {
     public static final String GPT_API_KEY = "gptAPIKey";
     public static final String MODAL = "modal";
     public static final String GG_ACCESS_TOKEN = "ggAccessToken";
+    public static final String GG_REFRESH_TOKEN = "ggRefreshToken";
     public static final String PROMPT_SUMMARY_SINGLE_MAIL = "promptSummarySingleMail";
     public static final String PROMPT_SUGGESTION_SINGLE_MAIL = "promptSuggestionSingleMail";
     public static final String PROMPT_SUMMARY_CONVERSATION = "promptSummaryConversation";

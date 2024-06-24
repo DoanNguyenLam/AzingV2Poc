@@ -19,6 +19,7 @@ public class EmailPortletConfigs {
     private String gptAPIKey;
     private ModalAI modal;
     private String ggAccessToken;
+    private String ggRefreshToken;
     private String promptSummarySingleMail;
     private String promptSuggestionSingleMail;
     private String promptSummaryConversation;
@@ -27,8 +28,9 @@ public class EmailPortletConfigs {
     public void updateProps(PortletRequest portletRequest) {
 //        String googleClientKey = portletRequest.getPreferences().getValue(GG_CLIENT_KEY, "");
 //        String goggleSecretKey = portletRequest.getPreferences().getValue(GG_SECRET_KEY, "");
-        String claudeAPIKey = portletRequest.getPreferences().getValue(CLAUDE_API_KEY, "");
         String gmailAccessToken = portletRequest.getPreferences().getValue(GG_ACCESS_TOKEN, "");
+        String gmailRefreshToken = portletRequest.getPreferences().getValue(GG_REFRESH_TOKEN, "");
+        String claudeAPIKey = portletRequest.getPreferences().getValue(CLAUDE_API_KEY, "");
         String gptAPIKey = portletRequest.getPreferences().getValue(GPT_API_KEY, "");
         ModalAI modal = ModalAI.valueOf(portletRequest.getPreferences().getValue(MODAL, ""));
         String promptSummarySingleMail = portletRequest.getPreferences().getValue(PROMPT_SUMMARY_SINGLE_MAIL, "");
@@ -42,6 +44,7 @@ public class EmailPortletConfigs {
         setGptAPIKey(gptAPIKey);
         setModal(modal);
         setGgAccessToken(gmailAccessToken);
+        setGgRefreshToken(gmailRefreshToken);
         setPromptSummarySingleMail(promptSummarySingleMail);
         setPromptSuggestionSingleMail(promptSuggestionSingleMail);
         setPromptSummaryConversation(promptSummaryConversation);

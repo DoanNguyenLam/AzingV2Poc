@@ -31,6 +31,7 @@ public class EmailPortletActionImpl extends DefaultConfigurationAction {
         String claudeAPIKey = ParamUtil.getString(actionRequest, CLAUDE_API_KEY);
         String gptAPIKey = ParamUtil.getString(actionRequest, GPT_API_KEY);
         String ggAccessToken = ParamUtil.getString(actionRequest, GG_ACCESS_TOKEN);
+        String ggRefreshToken = ParamUtil.getString(actionRequest, GG_REFRESH_TOKEN);
         String modal = ParamUtil.getString(actionRequest, MODAL);
         String promptSummarySingleMail = ParamUtil.getString(actionRequest, PROMPT_SUMMARY_SINGLE_MAIL);
         String promptSuggestionSingleMail = ParamUtil.getString(actionRequest, PROMPT_SUGGESTION_SINGLE_MAIL);
@@ -42,6 +43,7 @@ public class EmailPortletActionImpl extends DefaultConfigurationAction {
         setPreference(actionRequest, CLAUDE_API_KEY, claudeAPIKey);
         setPreference(actionRequest, GPT_API_KEY, gptAPIKey);
         setPreference(actionRequest, GG_ACCESS_TOKEN, ggAccessToken);
+        setPreference(actionRequest, GG_REFRESH_TOKEN, ggRefreshToken);
         setPreference(actionRequest, MODAL, String.valueOf(modal));
         setPreference(actionRequest, PROMPT_SUMMARY_SINGLE_MAIL, promptSummarySingleMail);
         setPreference(actionRequest, PROMPT_SUGGESTION_SINGLE_MAIL, promptSuggestionSingleMail);
@@ -53,6 +55,7 @@ public class EmailPortletActionImpl extends DefaultConfigurationAction {
         _log.info("CLAUDE API KEY: {}", claudeAPIKey);
         _log.info("GPT API KEY: {}", gptAPIKey);
         _log.info("GG ACCESS TOKEN: {}", ggAccessToken);
+        _log.info("GG REFRESH_TOKEN: {}", ggRefreshToken);
         _log.info("USING MODAL: {}", modal);
         _log.info("PROMPT_SUMMARY_SINGLE_MAIL: {}", promptSummarySingleMail);
         _log.info("PROMPT_SUGGESTION_SINGLE_MAIL: {}", promptSuggestionSingleMail);

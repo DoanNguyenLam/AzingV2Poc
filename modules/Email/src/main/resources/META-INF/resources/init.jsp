@@ -19,6 +19,7 @@
     String gptAPIKey = portletPreferences.getValue(GPT_API_KEY, "");
     String modal = portletPreferences.getValue(MODAL, "");
     String ggAccessToken = portletPreferences.getValue(GG_ACCESS_TOKEN, "");
+    String ggRefressToken = portletPreferences.getValue(GG_REFRESH_TOKEN, "");
     String promptSummarySingleMail = portletPreferences.getValue(PROMPT_SUMMARY_SINGLE_MAIL, "");
     String promptSuggestionSingleMail = portletPreferences.getValue(PROMPT_SUGGESTION_SINGLE_MAIL, "");
     String promptSummaryConversation = portletPreferences.getValue(PROMPT_SUMMARY_CONVERSATION, "");
