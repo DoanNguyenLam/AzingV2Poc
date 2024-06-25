@@ -145,8 +145,10 @@ public class GmailService {
         }
 
         List<GmailMessageIds.GmailMessage> listMailIds = response.getBody().getGmailMessageList().subList(0, 9);
-        List<LabelDTO> labelDTOS = getListLabels(accessToken);
-        LOGGER.info("[GET LIST MAIL] - get list labels {}", labelDTOS.stream().map(LabelDTO::getName).collect(Collectors.toList()));
+
+        List<LabelDTO> labelDTOS = new ArrayList<>();
+//        List<LabelDTO> labelDTOS = getListLabels(accessToken);
+//        LOGGER.info("[GET LIST MAIL] - get list labels {}", labelDTOS.stream().map(LabelDTO::getName).collect(Collectors.toList()));
 
         ExecutorService executorService = Executors.newFixedThreadPool(10);
 
@@ -186,8 +188,7 @@ public class GmailService {
         }
 
         GmailDetail gmailDetail = response.getBody();
-        EmailDTO emailDTO = Utils.processEmailDTO(gmailDetail, listLabel);
-        return emailDTO;
+        return Utils.processEmailDTO(gmailDetail, listLabel);
     }
 
     public String getGmailThreadDetail(String accessToken, String threadId){
