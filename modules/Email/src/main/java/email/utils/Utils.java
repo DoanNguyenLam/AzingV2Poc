@@ -97,7 +97,7 @@ public class Utils {
             Optional<String> date = gmailDetail.getPayload().getHeaders().stream().filter(headers -> Objects.equals(headers.getName(), "Date")).map(GmailDetail.Headers::getValue).findFirst();
             date.ifPresent(emailDTO::setDate);
 
-            emailDTO.setLabels(getLabelNames(listLabels, gmailDetail.getLabelIds()));
+//            emailDTO.setLabels(getLabelNames(listLabels, gmailDetail.getLabelIds()));
 
             if (gmailDetail.getPayload().getParts() == null || gmailDetail.getPayload().getParts().isEmpty()) {
                 String body = gmailDetail.getPayload().getBody().getData();
