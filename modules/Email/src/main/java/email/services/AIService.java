@@ -32,7 +32,7 @@ public class AIService {
         LOGGER.info("[{} EMAIL] - running ...", isSummary ? "SUMMARY" : "SUGGESTION");
         String claudeApiKey = emailPortletConfigs.getClaudeAPIKey();
         String gptAPIKey = emailPortletConfigs.getGptAPIKey();
-        ModalAI modalAI = emailPortletConfigs.getModal();
+        String modalAI = emailPortletConfigs.getModal();
 
         String summaryPromptSingleMail = emailPortletConfigs.getPromptSummarySingleMail();
         String suggestionPromptSingleMail = emailPortletConfigs.getPromptSuggestionSingleMail();
@@ -75,7 +75,7 @@ public class AIService {
 
         String API_URL;
         switch (modalAI) {
-            case CHAT_GPT:
+            case "chat-gpt":
                 API_URL = GPT_API_URL;
                 headers.set("Authorization", "Bearer " + gptAPIKey);
 
@@ -123,7 +123,7 @@ public class AIService {
                 String result;
 
                 switch (modalAI) {
-                    case CHAT_GPT:
+                    case "chat-gpt":
                         result = mapper.readValue(response, GPTResponseDTO.class)
                                 .getChoices()
                                 .get(0)

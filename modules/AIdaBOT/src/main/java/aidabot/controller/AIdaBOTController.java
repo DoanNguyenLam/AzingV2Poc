@@ -62,64 +62,14 @@ public class AIdaBOTController {
 		aidabotConfig.updateProp(portletRequest);
 
 
-		String script = "";
-		String url = "";
-
-		if (Validation.validateStr(aidabotConfig.getScript(), Validation.SCRIPT_PATTERN)) {
-			script = aidabotConfig.getScript();
-		}
-
-		if (Validation.validateStr(aidabotConfig.getUrl(), Validation.URL_PATTERN)) {
-			url = aidabotConfig.getUrl();
-		}
+		String script = aidabotConfig.getScript();
+		String url = aidabotConfig.getUrl();
 
 		modelMap.put("script", script);
 		modelMap.put("url", url);
 		_logger.info(_TAG + "script: {}", script);
 		_logger.info(_TAG + "url: {}", url);
 		return "embed";
-	}
-
-	@RenderMapping(params = "javax.portlet.action=success")
-	public String showGreeting(ModelMap modelMap) {
-
-		DateFormat dateFormat = new SimpleDateFormat("EEEE, MMMM d, yyyy G");
-
-		Calendar todayCalendar = Calendar.getInstance();
-
-		modelMap.put("todaysDate", dateFormat.format(todayCalendar.getTime()));
-
-		return "greeting";
-	}
-
-	@ActionMapping
-	public void submitApplicant(
-		@ModelAttribute("user") User user, BindingResult bindingResult,
-		ModelMap modelMap, Locale locale, ActionResponse actionResponse,
-		SessionStatus sessionStatus) {
-
-		_localValidatorFactoryBean.validate(user, bindingResult);
-
-		if (!bindingResult.hasErrors()) {
-			if (_logger.isDebugEnabled()) {
-				_logger.debug("firstName=" + user.getFirstName());
-				_logger.debug("lastName=" + user.getLastName());
-			}
-
-			MutableRenderParameters mutableRenderParameters =
-				actionResponse.getRenderParameters();
-
-			mutableRenderParameters.setValue("javax.portlet.action", "success");
-
-			sessionStatus.setComplete();
-		}
-		else {
-			bindingResult.addError(
-				new ObjectError(
-					"user",
-					_messageSource.getMessage(
-						"please-correct-the-following-errors", null, locale)));
-		}
 	}
 
 	@Autowired
