@@ -53,14 +53,14 @@
 <%--        </aui:fieldset>--%>
 
         <%-- GG Access token key --%>
-        <label class="aui-field-label" for="<portlet:namespace />script">
-            <spring:message code="gg-refresh-token"></spring:message>
-        </label>
-        <aui:fieldset>
-            <aui:input label="" type="password" name="ggRefreshToken" cssClass="w-100" value="<%=ggRefressToken%>"/>
-        </aui:fieldset>
+<%--        <label class="aui-field-label" for="<portlet:namespace />script">--%>
+<%--            <spring:message code="gg-refresh-token"></spring:message>--%>
+<%--        </label>--%>
+<%--        <aui:fieldset>--%>
+<%--            <aui:input label="" type="password" name="ggRefreshToken" cssClass="w-100" value="<%=ggRefressToken%>"/>--%>
+<%--        </aui:fieldset>--%>
 
-        <%-- GG Access token key --%>
+        <%-- GG Refresh token key --%>
         <label class="aui-field-label" for="<portlet:namespace />script">
             <spring:message code="gg-refresh-token"></spring:message>
         </label>
@@ -90,8 +90,8 @@
         </label>
         <aui:fieldset>
             <aui:select label="" name="modal" cssClass="w-50" value="<%= modal %>">
-                <aui:option value="<%= ModalAI.CHAT_GPT %>" label="GPT-3.5 Turbo"></aui:option>
-                <aui:option value="<%= ModalAI.CLAUDE_AI %>" label="Claude 3 Haiku"></aui:option>
+                <aui:option value="chat-gpt" label="GPT-3.5 Turbo"></aui:option>
+                <aui:option value="claude-ai" label="Claude 3 Haiku"></aui:option>
             </aui:select>
         </aui:fieldset>
 
